@@ -527,4 +527,4 @@ def VK32WM  : RegisterClass<"X86", [v32i1], 32, (add VK16WM)> {let Size = 32;}
 def VK64WM  : RegisterClass<"X86", [v64i1], 64, (add VK32WM)> {let Size = 64;}
 
 // Bound registers
-def BNDR : RegisterClass<"X86", [v2i64], 128, (sequence "BND%u", 0, 3)>;
+def BNDR : RegisterClass<"X86", [x86bnd], 128, (sequence "BND%u", 0, 3)>;

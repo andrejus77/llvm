@@ -12,6 +12,28 @@
 //===----------------------------------------------------------------------===//
 
 //===----------------------------------------------------------------------===//
+//MPX stuff
+//look at include/llvm/IR/Intrinsics.td for the meaning of Intr*Mem*
+//look at include/llvm/IR/Intrinsics.td for the class definition of Intrinsic
+let TargetPrefix = "x86" in {
+  def int_x86_bndcl :
+      Intrinsic<[], [llvm_x86bnd_ty, llvm_ptr_ty], []>;
+  def int_x86_bndcn :
+      Intrinsic<[], [llvm_x86bnd_ty, llvm_ptr_ty], []>;
+  def int_x86_bndcu :
+      Intrinsic<[], [llvm_x86bnd_ty, llvm_ptr_ty], []>;
+  def int_x86_bndldx ://BNDLDXrm
+      Intrinsic<[llvm_x86bnd_ty], [llvm_ptr_ty], []>;
+  def int_x86_bndmk :
+      Intrinsic<[llvm_x86bnd_ty], [llvm_ptr_ty], [IntrNoMem]>;
+  def int_x86_bndstx ://BNDSTXmr
+      Intrinsic<[], [llvm_ptr_ty, llvm_x86bnd_ty], []>;
+
+}
+
+//===----------------------------------------------------------------------===//
+
+//===----------------------------------------------------------------------===//
 // Interrupt traps
 let TargetPrefix = "x86" in {  // All intrinsics start with "llvm.x86.".
   def int_x86_int : Intrinsic<[], [llvm_i8_ty]>;

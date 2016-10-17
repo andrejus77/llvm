@@ -36,6 +36,7 @@ Type *Type::getPrimitiveType(LLVMContext &C, TypeID IDNumber) {
   case MetadataTyID  : return getMetadataTy(C);
   case X86_MMXTyID   : return getX86_MMXTy(C);
   case TokenTyID     : return getTokenTy(C);
+  case X86_BNDTyID   : return getX86_BNDTy(C);
   default:
     return nullptr;
   }
@@ -162,6 +163,7 @@ Type *Type::getX86_FP80Ty(LLVMContext &C) { return &C.pImpl->X86_FP80Ty; }
 Type *Type::getFP128Ty(LLVMContext &C) { return &C.pImpl->FP128Ty; }
 Type *Type::getPPC_FP128Ty(LLVMContext &C) { return &C.pImpl->PPC_FP128Ty; }
 Type *Type::getX86_MMXTy(LLVMContext &C) { return &C.pImpl->X86_MMXTy; }
+Type *Type::getX86_BNDTy(LLVMContext &C) { return &C.pImpl->X86_BNDTy; }
 
 IntegerType *Type::getInt1Ty(LLVMContext &C) { return &C.pImpl->Int1Ty; }
 IntegerType *Type::getInt8Ty(LLVMContext &C) { return &C.pImpl->Int8Ty; }

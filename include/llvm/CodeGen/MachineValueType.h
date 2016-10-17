@@ -125,16 +125,19 @@ class MVT {
 
       x86mmx         =  64,   // This is an X86 MMX value
 
-      Glue           =  65,   // This glues nodes together during pre-RA sched
+      x86bnd         =  65,   // This is an X86 bnd value
 
-      isVoid         =  66,   // This has no value
+      Glue           =  66,   // This glues nodes together during pre-RA sched
 
-      Untyped        =  67,   // This value takes a register, but has
+      isVoid         =  67,   // This has no value
+
+      Untyped        =  68,   // This value takes a register, but has
                               // unspecified type.  The register class
                               // will be determined by the opcode.
 
+
       FIRST_VALUETYPE = 0,    // This is always the beginning of the list.
-      LAST_VALUETYPE =  68,   // This always remains at the end of the list.
+      LAST_VALUETYPE =  69,   // This always remains at the end of the list.
 
       // This is the current maximum for LAST_VALUETYPE.
       // MVT::MAX_ALLOWED_VALUETYPE is used for asserts and to size bit vectors
@@ -476,6 +479,7 @@ class MVT {
       case v2f32:
       case v1f64: return 64;
       case f80 :  return 80;
+      case x86bnd:
       case f128:
       case ppcf128:
       case i128:

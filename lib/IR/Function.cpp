@@ -596,25 +596,26 @@ enum IIT_Info {
   // Values from 16+ are only encodable with the inefficient encoding.
   IIT_V64  = 16,
   IIT_MMX  = 17,
-  IIT_TOKEN = 18,
-  IIT_METADATA = 19,
-  IIT_EMPTYSTRUCT = 20,
-  IIT_STRUCT2 = 21,
-  IIT_STRUCT3 = 22,
-  IIT_STRUCT4 = 23,
-  IIT_STRUCT5 = 24,
-  IIT_EXTEND_ARG = 25,
-  IIT_TRUNC_ARG = 26,
-  IIT_ANYPTR = 27,
-  IIT_V1   = 28,
-  IIT_VARARG = 29,
-  IIT_HALF_VEC_ARG = 30,
-  IIT_SAME_VEC_WIDTH_ARG = 31,
-  IIT_PTR_TO_ARG = 32,
-  IIT_VEC_OF_PTRS_TO_ELT = 33,
-  IIT_I128 = 34,
-  IIT_V512 = 35,
-  IIT_V1024 = 36
+  IIT_BND  = 18,
+  IIT_TOKEN = 19,
+  IIT_METADATA = 20,
+  IIT_EMPTYSTRUCT = 21,
+  IIT_STRUCT2 = 22,
+  IIT_STRUCT3 = 23,
+  IIT_STRUCT4 = 24,
+  IIT_STRUCT5 = 25,
+  IIT_EXTEND_ARG = 26,
+  IIT_TRUNC_ARG = 27,
+  IIT_ANYPTR = 28,
+  IIT_V1   = 29,
+  IIT_VARARG = 30,
+  IIT_HALF_VEC_ARG = 31,
+  IIT_SAME_VEC_WIDTH_ARG = 32,
+  IIT_PTR_TO_ARG = 33,
+  IIT_VEC_OF_PTRS_TO_ELT = 34,
+  IIT_I128 = 35,
+  IIT_V512 = 36,
+  IIT_V1024 = 37
 };
 
 
@@ -636,6 +637,9 @@ static void DecodeIITType(unsigned &NextElt, ArrayRef<unsigned char> Infos,
     return;
   case IIT_TOKEN:
     OutputTable.push_back(IITDescriptor::get(IITDescriptor::Token, 0));
+    return;
+  case IIT_BND:
+    OutputTable.push_back(IITDescriptor::get(IITDescriptor::BND, 0));
     return;
   case IIT_METADATA:
     OutputTable.push_back(IITDescriptor::get(IITDescriptor::Metadata, 0));
@@ -820,6 +824,7 @@ static Type *DecodeFixedType(ArrayRef<Intrinsic::IITDescriptor> &Infos,
   case IITDescriptor::Void: return Type::getVoidTy(Context);
   case IITDescriptor::VarArg: return Type::getVoidTy(Context);
   case IITDescriptor::MMX: return Type::getX86_MMXTy(Context);
+  case IITDescriptor::BND: return Type::getX86_BNDTy(Context);
   case IITDescriptor::Token: return Type::getTokenTy(Context);
   case IITDescriptor::Metadata: return Type::getMetadataTy(Context);
   case IITDescriptor::Half: return Type::getHalfTy(Context);
@@ -964,6 +969,7 @@ bool Intrinsic::matchIntrinsicType(Type *Ty, ArrayRef<Intrinsic::IITDescriptor> 
     case IITDescriptor::Void: return !Ty->isVoidTy();
     case IITDescriptor::VarArg: return true;
     case IITDescriptor::MMX:  return !Ty->isX86_MMXTy();
+    case IITDescriptor::BND:  return !Ty->isX86_BNDTy();
     case IITDescriptor::Token: return !Ty->isTokenTy();
     case IITDescriptor::Metadata: return !Ty->isMetadataTy();
     case IITDescriptor::Half: return !Ty->isHalfTy();

@@ -64,15 +64,16 @@ public:
     MetadataTyID,    ///<  8: Metadata
     X86_MMXTyID,     ///<  9: MMX vectors (64 bits, X86 specific)
     TokenTyID,       ///< 10: Tokens
+    X86_BNDTyID,     ///< 11: Bound, 128bits X86 specific
 
     // Derived types... see DerivedTypes.h file.
     // Make sure FirstDerivedTyID stays up to date!
-    IntegerTyID,     ///< 11: Arbitrary bit width integers
-    FunctionTyID,    ///< 12: Functions
-    StructTyID,      ///< 13: Structures
-    ArrayTyID,       ///< 14: Arrays
-    PointerTyID,     ///< 15: Pointers
-    VectorTyID       ///< 16: SIMD 'packed' format, or other vector type
+    IntegerTyID,     ///< 12: Arbitrary bit width integers
+    FunctionTyID,    ///< 13: Functions
+    StructTyID,      ///< 14: Structures
+    ArrayTyID,       ///< 15: Arrays
+    PointerTyID,     ///< 16: Pointers
+    VectorTyID       ///< 17: SIMD 'packed' format, or other vector type
   };
 
 private:
@@ -191,6 +192,9 @@ public:
   /// Return true if this is 'token'.
   bool isTokenTy() const { return getTypeID() == TokenTyID; }
 
+   /// Return true if this is X86 MMX.
+  bool isX86_BNDTy() const { return getTypeID() == X86_BNDTyID; }
+
   /// True if this is an instance of IntegerType.
   bool isIntegerTy() const { return getTypeID() == IntegerTyID; }
 
@@ -237,8 +241,8 @@ public:
   /// Return true if the type is a valid type for a register in codegen. This
   /// includes all first-class types except struct and array types.
   bool isSingleValueType() const {
-    return isFloatingPointTy() || isX86_MMXTy() || isIntegerTy() ||
-           isPointerTy() || isVectorTy();
+    return isFloatingPointTy() || isX86_MMXTy() ||
+           isIntegerTy() || isPointerTy() || isVectorTy();
   }
 
   /// Return true if the type is an aggregate type. This means it is valid as
@@ -376,6 +380,7 @@ public:
   static Type *getPPC_FP128Ty(LLVMContext &C);
   static Type *getX86_MMXTy(LLVMContext &C);
   static Type *getTokenTy(LLVMContext &C);
+  static Type *getX86_BNDTy(LLVMContext &C);
   static IntegerType *getIntNTy(LLVMContext &C, unsigned N);
   static IntegerType *getInt1Ty(LLVMContext &C);
   static IntegerType *getInt8Ty(LLVMContext &C);

@@ -734,7 +734,9 @@ X86TargetLowering::X86TargetLowering(const X86TargetMachine &TM,
     addRegisterClass(MVT::x86mmx, &X86::VR64RegClass);
     // No operations on x86mmx supported, everything uses intrinsics.
   }
-
+  //MPX bound registers
+  addRegisterClass(MVT::x86bnd, &X86::BNDRRegClass);
+  
   if (!Subtarget.useSoftFloat() && Subtarget.hasSSE1()) {
     addRegisterClass(MVT::v4f32, Subtarget.hasVLX() ? &X86::VR128XRegClass
                                                     : &X86::VR128RegClass);
@@ -17655,6 +17657,9 @@ static SDValue recoverFramePointer(SelectionDAG &DAG, const Function *Fn,
 
 static SDValue LowerINTRINSIC_WO_CHAIN(SDValue Op, const X86Subtarget &Subtarget,
                                        SelectionDAG &DAG) {
+  errs()<<"LowerINTRINSIC_WO_CHAIN : ";
+  Op->dumpr();
+
   SDLoc dl(Op);
   unsigned IntNo = cast<ConstantSDNode>(Op.getOperand(0))->getZExtValue();
   MVT VT = Op.getSimpleValueType();
@@ -18274,6 +18279,32 @@ static SDValue LowerINTRINSIC_WO_CHAIN(SDValue Op, const X86Subtarget &Subtarget
 
   switch (IntNo) {
   default: return SDValue();    // Don't custom lower most intrinsics.
+    ///////////////////////////////////////////////////////////////////////////////
+    // MPX intrinsics
+    // see include/llvm/CodeGen/ISDOpcodes.h for return value instruction
+    case Intrinsic::x86_bndmk: {
+      errs()<<"  - In LowerINTRINSIC_WO_CHAIN: BNDMK\n";
+
+      //address is stored in operand 1
+      SDValue addr = Op.getOperand(1);
+      /*
+       * return type
+       */
+      SDVTList BNDVTs = DAG.getVTList(MVT::v2i64);
+
+      /*
+       * if use X86ISD::BNDMK, it will be selected and
+       * lowered in X86ISelDAGToDAG.cpp
+       */
+      SDValue Ops[] = {addr};
+      SDValue Result = DAG.getNode(X86ISD::BNDMK, dl, BNDVTs, Ops);
+      errs()<<"ISelResult for BNDMK:";
+      Result.dumpr();
+      return Result;
+    }
+
+  ///////////////////////////////////////////////////////////////////////////////
+
 
   case Intrinsic::x86_avx2_permd:
   case Intrinsic::x86_avx2_permps:
@@ -18742,6 +18773,9 @@ static SDValue LowerINTRINSIC_W_CHAIN(SDValue Op, const X86Subtarget &Subtarget,
                                       SelectionDAG &DAG) {
   unsigned IntNo = cast<ConstantSDNode>(Op.getOperand(1))->getZExtValue();
 
+  errs()<<"LowerINTRINSIC_W_CHAIN : ";
+  Op->dumpr();
+
   const IntrinsicData* IntrData = getIntrinsicWithChain(IntNo);
   if (!IntrData) {
     if (IntNo == llvm::Intrinsic::x86_seh_ehregnode)
@@ -18766,6 +18800,83 @@ static SDValue LowerINTRINSIC_W_CHAIN(SDValue Op, const X86Subtarget &Subtarget,
   SDLoc dl(Op);
   switch(IntrData->Type) {
   default: llvm_unreachable("Unknown Intrinsic Type");
+  //////////////////////////////////////////////////////////////////////////
+  //mpx stuff with chain
+  // see include/llvm/CodeGen/ISDOpcodes.h for return value instruction
+  case BNDSTX: {
+      errs()<<"  - In LowerINTRINSIC_W_CHAIN: BNDSTX\n";
+
+      SDValue Chain = Op.getOperand(0);
+      SDValue mib = Op.getOperand(2);
+      SDValue bnd = Op.getOperand(3);
+      errs()<<"BND:?";
+      bnd->print(errs());
+      errs()<<"\n";
+
+      SDVTList VTs = DAG.getVTList(MVT::Other);
+      SDValue Ops[] = {Chain, mib, bnd};
+
+      return DAG.getNode(X86ISD::BNDSTX, dl, VTs, Ops);
+  }
+  case BNDLDX: {
+    errs()<<"  - In LowerINTRINSIC_W_CHAIN: BNDLDX\n";
+
+    SDValue Chain = Op.getOperand(0);
+    SDValue mib = Op.getOperand(2);
+
+    SDVTList VTs = DAG.getVTList(MVT::v2i64, MVT::Other);
+    SDValue Ops[] = {Chain, mib};
+    SDValue Result = DAG.getNode(X86ISD::BNDLDX, dl, VTs, Ops);
+    errs()<<"ISelResult for BNDLDX:";
+    Result.dumpr();
+    return Result;
+  }
+  case BNDCL: {
+      errs()<<"  - In LowerINTRINSIC_W_CHAIN: BNDCL\n";
+
+      SDValue Chain = Op.getOperand(0);
+      SDValue bnd = Op.getOperand(2);
+      SDValue mib = Op.getOperand(3);
+      errs()<<"BND:?";
+      bnd->print(errs());
+      errs()<<"\n";
+
+      SDVTList VTs = DAG.getVTList(MVT::Other);
+      SDValue Ops[] = {Chain, bnd, mib};
+
+      return DAG.getNode(X86ISD::BNDCL, dl, VTs, Ops);
+  }
+  case BNDCU: {
+      errs()<<"  - In LowerINTRINSIC_W_CHAIN: BNDCU\n";
+
+      SDValue Chain = Op.getOperand(0);
+      SDValue bnd = Op.getOperand(2);
+      SDValue mib = Op.getOperand(3);
+      errs()<<"BND:?";
+      bnd->print(errs());
+      errs()<<"\n";
+
+      SDVTList VTs = DAG.getVTList(MVT::Other);
+      SDValue Ops[] = {Chain, bnd, mib};
+
+      return DAG.getNode(X86ISD::BNDCU, dl, VTs, Ops);
+  }
+  case BNDCN: {
+      errs()<<"  - In LowerINTRINSIC_W_CHAIN: BNDCN\n";
+
+      SDValue Chain = Op.getOperand(0);
+      SDValue bnd = Op.getOperand(2);
+      SDValue mib = Op.getOperand(3);
+      errs()<<"BND:?";
+      bnd->print(errs());
+      errs()<<"\n";
+
+      SDVTList VTs = DAG.getVTList(MVT::Other);
+      SDValue Ops[] = {Chain, bnd, mib};
+
+      return DAG.getNode(X86ISD::BNDCN, dl, VTs, Ops);
+  }
+  ///////////////////////////////////////////////////////////////////////////
   case RDSEED:
   case RDRAND: {
     // Emit the node with the right value type.
@@ -22032,6 +22143,11 @@ SDValue X86TargetLowering::LowerGC_TRANSITION_END(SDValue Op,
 
 /// Provide custom lowering hooks for some operations.
 SDValue X86TargetLowering::LowerOperation(SDValue Op, SelectionDAG &DAG) const {
+
+    errs()<<"X86TargetLowering::LowerOperation : ";
+    Op->print(errs());
+    errs()<<"\n";
+
   switch (Op.getOpcode()) {
   default: llvm_unreachable("Should not custom lower this!");
   case ISD::ATOMIC_FENCE:       return LowerATOMIC_FENCE(Op, Subtarget, DAG);
@@ -22153,6 +22269,9 @@ SDValue X86TargetLowering::LowerOperation(SDValue Op, SelectionDAG &DAG) const {
 void X86TargetLowering::LowerOperationWrapper(SDNode *N,
                                               SmallVectorImpl<SDValue> &Results,
                                               SelectionDAG &DAG) const {
+  errs()<<"X86TargetLowering::LowerOperationWrapper : ";
+  N->print(errs());
+  errs()<<"\n";
   SDValue Res = LowerOperation(SDValue(N, 0), DAG);
 
   if (!Res.getNode())
@@ -22723,6 +22842,12 @@ const char *X86TargetLowering::getTargetNodeName(unsigned Opcode) const {
   case X86ISD::CVTP2UI_RND:        return "X86ISD::CVTP2UI_RND";
   case X86ISD::CVTS2SI_RND:        return "X86ISD::CVTS2SI_RND";
   case X86ISD::CVTS2UI_RND:        return "X86ISD::CVTS2UI_RND";
+  case X86ISD::BNDCL:              return "X86ISD::BNDCL";
+  case X86ISD::BNDCN:              return "X86ISD::BNDCN";
+  case X86ISD::BNDCU:              return "X86ISD::BNDCU";
+  case X86ISD::BNDLDX:              return "X86ISD::BNDLDX";
+  case X86ISD::BNDMK:              return "X86ISD::BNDMK";
+  case X86ISD::BNDSTX:              return "X86ISD::BNDSTX";
   }
   return nullptr;
 }
@@ -24566,6 +24691,8 @@ X86TargetLowering::EmitSjLjDispatchBlock(MachineInstr &MI,
 MachineBasicBlock *
 X86TargetLowering::EmitInstrWithCustomInserter(MachineInstr &MI,
                                                MachineBasicBlock *BB) const {
+  errs()<<"X86TargetLowering::EmitInstrWithCustomInserter:";
+  MI.dump();
   switch (MI.getOpcode()) {
   default: llvm_unreachable("Unexpected instr type to insert");
   case X86::TAILJMPd64:

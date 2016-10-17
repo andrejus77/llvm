@@ -1775,6 +1775,9 @@ std::error_code BitcodeReader::parseTypeTableBody() {
     case bitc::TYPE_CODE_TOKEN:     // TOKEN
       ResultTy = Type::getTokenTy(Context);
       break;
+    case bitc::TYPE_CODE_X86_BND:   // X86_BND
+      ResultTy = Type::getX86_BNDTy(Context);
+      break;
     case bitc::TYPE_CODE_INTEGER: { // INTEGER: [width]
       if (Record.size() < 1)
         return error("Invalid record");

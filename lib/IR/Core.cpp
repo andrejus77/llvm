@@ -345,6 +345,8 @@ LLVMTypeKind LLVMGetTypeKind(LLVMTypeRef Ty) {
     return LLVMX86_MMXTypeKind;
   case Type::TokenTyID:
     return LLVMTokenTypeKind;
+  case Type::X86_BNDTyID:
+    return LLVMX86_BNDTypeKind;
   }
   llvm_unreachable("Unhandled TypeID.");
 }
@@ -451,6 +453,9 @@ LLVMTypeRef LLVMX86MMXTypeInContext(LLVMContextRef C) {
 }
 LLVMTypeRef LLVMTokenTypeInContext(LLVMContextRef C) {
   return (LLVMTypeRef) Type::getTokenTy(*unwrap(C));
+}
+LLVMTypeRef LLVMX86BNDTypeInContext(LLVMContextRef C) {
+  return (LLVMTypeRef) Type::getX86_BNDTy(*unwrap(C));
 }
 
 LLVMTypeRef LLVMHalfType(void) {

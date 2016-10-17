@@ -1483,7 +1483,6 @@ bool X86DAGToDAGISel::selectAddr(SDNode *Parent, SDValue N, SDValue &Base,
     if (AddrSpace == 258)
       AM.Segment = CurDAG->getRegister(X86::SS, MVT::i16);
   }
-
   if (matchAddress(N, AM))
     return false;
 
@@ -1931,6 +1930,11 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
   unsigned Opcode = Node->getOpcode();
   SDLoc dl(Node);
 
+    errs()<<"-----------------------------\n";
+    errs()<<"X86DAGToDAGISel::Select : "<<Opcode<<"\n";
+    Node->print(errs());
+    errs()<<"\n";
+
   DEBUG(dbgs() << "Selecting: "; Node->dump(CurDAG); dbgs() << '\n');
 
   if (Node->isMachineOpcode()) {
@@ -1941,6 +1945,257 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
 
   switch (Opcode) {
   default: break;
+  /////////////////////////////////////////////////////////////////////////////
+  //mpx stuff, should be lowered in X86ISELLowering???
+#if 1
+  case X86ISD::BNDMK:
+  {
+      errs()<<"WTF this is a bndmk!\n";
+
+      SDValue N0 = Node->getOperand(0);
+
+      //MOpc = (NVT == MVT::i64)?(X86::BNDMK64rm):(X86::BNDMK32rm);
+      MOpc = X86::BNDMK64rm;
+
+      //FIXME : how to load address?
+      SDValue tmp0, tmp1, tmp2, tmp3, tmp4;
+      //should use nullptr for Parent here
+      bool loadAddr = selectAddr(nullptr, N0, tmp0, tmp1, tmp2, tmp3, tmp4);
+      assert( loadAddr && "unable to LEA for given memory address (#BNDMK)?" );
+
+      //SDValue bnd_register = CurDAG->getRegister(0, MVT::v2i64);
+
+      SDValue Ops[] = {tmp0, tmp1, tmp2, tmp3, tmp4};
+
+      SDVTList VTs = CurDAG->getVTList(Node->getVTList().VTs[0]);
+      MachineSDNode *CNode = CurDAG->getMachineNode(MOpc, dl, VTs, Ops);
+
+      ReplaceNode(Node, CNode);
+
+      return;
+  }
+  case X86ISD::BNDSTX:
+  {
+      //{chain, mib, bnd_reg}
+      errs()<<"WTF This is a bndstx\n";
+      Node->printrFull(errs());
+      errs()<<"\n";
+      SDValue chain = Node->getOperand(0);
+      SDValue mib = Node->getOperand(1);
+      SDValue bnd_reg = Node->getOperand(2);
+
+      //lea of mib
+      SDValue tmp0, tmp1, tmp2, tmp3, tmp4;
+      bool loadAddr = selectAddr(nullptr, mib, tmp0, tmp1, tmp2, tmp3, tmp4);
+      assert( loadAddr && "unable to LEA for given memory address (#BNDSTX)?" );
+
+      errs()<<"bnd_reg:?";
+      bnd_reg->print(errs());
+      errs()<<"\n";
+
+      SDValue Ops[] = {tmp0, tmp1, tmp2, tmp3, tmp4, bnd_reg, chain};
+
+      SDVTList VTs = CurDAG->getVTList(MVT::Other);
+      MachineSDNode *CNode = CurDAG->getMachineNode(X86::BNDSTXmr, dl, VTs, Ops);
+      
+      ReplaceNode(Node,CNode);
+
+      return;
+  }
+  case X86ISD::BNDLDX:
+  {
+      //{chain, mib}
+      errs()<<"WTF This is a bndldx\n";
+      Node->printrFull(errs());
+      errs()<<"\n";
+      SDValue chain = Node->getOperand(0);
+      SDValue mib = Node->getOperand(1);
+      errs()<<"Examing chain:";
+      chain.dump();
+      //lea of mib
+      SDValue tmp0, tmp1, tmp2, tmp3, tmp4;
+      bool loadAddr = selectAddr(nullptr, mib, tmp0, tmp1, tmp2, tmp3, tmp4);
+      assert( loadAddr && "unable to LEA for given memory address (#BNDLDX)?" );
+
+      SDValue Ops[] = {tmp0, tmp1, tmp2, tmp3, tmp4, chain};
+
+      SDVTList VTs = CurDAG->getVTList(MVT::v2i64, MVT::Other);
+      MachineSDNode *CNode = CurDAG->getMachineNode(X86::BNDLDXrm, dl, VTs, Ops);
+      
+      ReplaceNode(Node,CNode);
+      return;
+  }
+  case X86ISD::BNDCL:
+  {
+      //{chain, bnd_reg, mib}
+      errs()<<"WTF This is a bndcl\n";
+      Node->printrFull(errs());
+      errs()<<"\n";
+      SDValue chain = Node->getOperand(0);
+      SDValue bnd_reg = Node->getOperand(1);
+      SDValue mib = Node->getOperand(2);
+      #if 0
+      //lea of mib
+      SDValue tmp0, tmp1, tmp2, tmp3, tmp4;
+      bool loadAddr = selectAddr(nullptr, mib, tmp0, tmp1, tmp2, tmp3, tmp4);
+      assert( loadAddr && "unable to LEA for given memory address (#BNDCL)?" );
+
+      errs()<<"bnd_reg:?";
+      bnd_reg->print(errs());
+      errs()<<"\n";
+
+      SDValue Ops[] = {tmp0, tmp1, tmp2, tmp3, tmp4, bnd_reg, chain};
+
+      SDVTList VTs = CurDAG->getVTList(MVT::Other);
+      MachineSDNode *CNode = CurDAG->getMachineNode(X86::BNDCL64rm, dl, VTs, Ops);
+      #else
+      SDValue Ops[] = {bnd_reg, mib, chain};
+      SDVTList VTs = CurDAG->getVTList(MVT::Other);
+      MachineSDNode *CNode = CurDAG->getMachineNode(X86::BNDCL64rr, dl, VTs, Ops);
+      #endif
+     
+      ReplaceNode(Node,CNode);
+
+      return;
+  }
+  case X86ISD::BNDCU:
+  {
+      //{chain, bnd_reg, mib}
+      errs()<<"WTF This is a bndcu\n";
+      Node->printrFull(errs());
+      errs()<<"\n";
+      SDValue chain = Node->getOperand(0);
+      SDValue bnd_reg = Node->getOperand(1);
+      SDValue mib = Node->getOperand(2);
+      #if 0
+      //lea of mib
+      SDValue tmp0, tmp1, tmp2, tmp3, tmp4;
+      bool loadAddr = selectAddr(nullptr, mib, tmp0, tmp1, tmp2, tmp3, tmp4);
+      assert( loadAddr && "unable to LEA for given memory address (#BNDCU)?" );
+
+      errs()<<"bnd_reg:?";
+      bnd_reg->print(errs());
+      errs()<<"\n";
+
+      SDValue Ops[] = {tmp0, tmp1, tmp2, tmp3, tmp4, bnd_reg, chain};
+
+      SDVTList VTs = CurDAG->getVTList(MVT::Other);
+      MachineSDNode *CNode = CurDAG->getMachineNode(X86::BNDCU64rm, dl, VTs, Ops);
+      #else
+      SDValue Ops[] = {bnd_reg, mib, chain};
+      SDVTList VTs = CurDAG->getVTList(MVT::Other);
+      MachineSDNode *CNode = CurDAG->getMachineNode(X86::BNDCU64rr, dl, VTs, Ops);
+      #endif
+      ReplaceNode(Node,CNode);
+
+      return;
+  }
+  case X86ISD::BNDCN:
+  {
+      //{chain, bnd_reg, mib}
+      errs()<<"WTF This is a bndcn\n";
+      Node->printrFull(errs());
+      errs()<<"\n";
+      SDValue chain = Node->getOperand(0);
+      SDValue bnd_reg = Node->getOperand(1);
+      SDValue mib = Node->getOperand(2);
+      #if 0
+      //lea of mib
+      SDValue tmp0, tmp1, tmp2, tmp3, tmp4;
+      bool loadAddr = selectAddr(nullptr, mib, tmp0, tmp1, tmp2, tmp3, tmp4);
+      assert( loadAddr && "unable to LEA for given memory address (#BNDCN)?" );
+
+      errs()<<"bnd_reg:?";
+      bnd_reg->print(errs());
+      errs()<<"\n";
+
+      SDValue Ops[] = {tmp0, tmp1, tmp2, tmp3, tmp4, bnd_reg, chain};
+
+      SDVTList VTs = CurDAG->getVTList(MVT::Other);
+      MachineSDNode *CNode = CurDAG->getMachineNode(X86::BNDCN64rm, dl, VTs, Ops);
+      #else
+      SDValue Ops[] = {bnd_reg, mib, chain};
+      SDVTList VTs = CurDAG->getVTList(MVT::Other);
+      MachineSDNode *CNode = CurDAG->getMachineNode(X86::BNDCN64rr, dl, VTs, Ops);
+      #endif
+      ReplaceNode(Node,CNode);
+
+      return;
+  }
+
+#if 0
+  //for more info, refer to ISD namespace
+  case ISD::CopyToReg:
+  {
+      /*
+       * CopyToReg - This node has three operands:
+       * a chain, a register number to set to this value, and a value.
+       */
+      /*
+       * use stack if copy from BND register
+       */
+      errs()<<"WTF This is CopyToReg\n";
+      //Node->printrFull(errs());
+      
+      SDValue chain = Node->getOperand(0);
+      SDValue dest = Node->getOperand(1);
+      SDValue source = Node->getOperand(2);
+      errs()<<"Target Opcode:"
+            <<source->getOpcode()<<"\n";
+
+      if ((source->getOpcode()!=X86::BNDMK64rm)
+        &&(source->getOpcode()!=X86::BNDMK32rm)
+        &&(source->getOpcode()!=X86ISD::BNDMK))
+      {
+        break;
+      }
+      errs()<<" and source is BNDMK\n";
+      //first copy bnd to stack
+      SDValue memtmp = CurDAG->CreateStackTemporary(MVT::v2i64);
+      SDValue bnd2mem = CurDAG->getStore(chain, dl, source, memtmp, MachinePointerInfo());
+      SDValue inflag = bnd2mem;
+      
+      //then load to target register using the temp value from stack
+      SDValue tmp0, tmp1, tmp2, tmp3, tmp4;
+      bool loadAddr = selectAddr(nullptr, memtmp, tmp0, tmp1, tmp2, tmp3, tmp4);
+      assert( loadAddr && "can not lea\n");
+      SDValue Ops[] = {dest, tmp0, tmp1, tmp2, tmp3, tmp4, inflag};
+      SDVTList VTs = CurDAG->getVTList(MVT::v2i64, MVT::Other);
+      MachineSDNode *mem2bnd = CurDAG->getMachineNode(X86::BNDMOVRM64rm,dl, VTs, Ops);
+
+      //Chain
+      ReplaceUses(SDValue(Node,0), bnd2mem);
+
+      SDNode* CNode = mem2bnd;
+
+      errs()<<"transformed into :\n";
+      CNode->dumpr();
+
+      ReplaceNode(Node, CNode);
+      SelectCode(bnd2mem.getNode());
+      
+      return;
+  }
+  case ISD::CopyFromReg:
+  {
+      /*
+       * CopyFromReg - This node indicates that the input value is 
+       * a virtual or physical register that is defined outside of 
+       * the scope of this SelectionDAG.
+       */
+      /*
+       * The register is available from the RegisterSDNode object.
+       */
+      errs()<<"WTF This is CopyFromReg\n";
+      SDValue chain = Node->getOperand(0);
+      SDValue src = Node->getOperand(1);
+      SDValue dst = SDValue(Node, 0);
+
+      break;
+  }
+#endif
+#endif
+  /////////////////////////////////////////////////////////////////////////////
   case ISD::BRIND: {
     if (Subtarget->isTargetNaCl())
       // NaCl has its own pass where jmp %r32 are converted to jmp %r64. We

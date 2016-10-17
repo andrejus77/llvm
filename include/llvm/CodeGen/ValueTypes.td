@@ -92,10 +92,11 @@ def v4f64  : ValueType<256, 62>;   //  4 x f64 vector value
 def v8f64  : ValueType<512, 63>;   //  8 x f64 vector value
 
 
-def x86mmx : ValueType<64 , 64>;   // X86 MMX value
-def FlagVT : ValueType<0  , 65>;   // Pre-RA sched glue
-def isVoid : ValueType<0  , 66>;   // Produces no value
-def untyped: ValueType<8  , 67>;   // Produces an untyped value
+def x86mmx : ValueType<64,  64>;   // X86 MMX value
+def x86bnd : ValueType<128, 65>;   // X86 BND value
+def FlagVT : ValueType<0  , 66>;   // Pre-RA sched glue
+def isVoid : ValueType<0  , 67>;   // Produces no value
+def untyped: ValueType<8  , 68>;   // Produces an untyped value
 def token  : ValueType<0  , 120>;  // TokenTy
 def MetadataVT: ValueType<0, 121>; // Metadata
 

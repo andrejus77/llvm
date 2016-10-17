@@ -715,6 +715,7 @@ lltok::Kind LLLexer::LexIdentifier() {
   TYPEKEYWORD("metadata",  Type::getMetadataTy(Context));
   TYPEKEYWORD("x86_mmx",   Type::getX86_MMXTy(Context));
   TYPEKEYWORD("token",     Type::getTokenTy(Context));
+  TYPEKEYWORD("x86_bnd",   Type::getX86_BNDTy(Context));
 
 #undef TYPEKEYWORD
 

@@ -35,7 +35,8 @@ enum IntrinsicType : uint16_t {
   TRUNCATE_TO_MEM_VI8, TRUNCATE_TO_MEM_VI16, TRUNCATE_TO_MEM_VI32,
   EXPAND_FROM_MEM, INSERT_SUBVEC,
   TERLOG_OP_MASK, TERLOG_OP_MASKZ, BROADCASTM, KUNPCK, FIXUPIMM, FIXUPIMM_MASKZ, FIXUPIMMS,
-  FIXUPIMMS_MASKZ, CONVERT_MASK_TO_VEC, CONVERT_TO_MASK
+  FIXUPIMMS_MASKZ, CONVERT_MASK_TO_VEC, CONVERT_TO_MASK,
+  BNDCL, BNDCN, BNDCU, BNDLDX, BNDMK, BNDSTX
 };
 
 struct IntrinsicData {
@@ -216,6 +217,15 @@ static const IntrinsicData IntrinsicsWithChain[] = {
   X86_INTRINSIC_DATA(avx512_scattersiv4_si, SCATTER, X86::VPSCATTERDDZ128mr, 0),
   X86_INTRINSIC_DATA(avx512_scattersiv8_sf, SCATTER, X86::VSCATTERDPSZ256mr, 0),
   X86_INTRINSIC_DATA(avx512_scattersiv8_si, SCATTER, X86::VPSCATTERDDZ256mr, 0),
+  ////////////////////////////////////////////////////////////////////////////
+  //mpx stuff
+  //why bndldx is intrinsic with chain???
+  X86_INTRINSIC_DATA(bndcl, BNDCL, X86ISD::BNDCL, 0),
+  X86_INTRINSIC_DATA(bndcn, BNDCN, X86ISD::BNDCN, 0),
+  X86_INTRINSIC_DATA(bndcu, BNDCU, X86ISD::BNDCU, 0),
+  X86_INTRINSIC_DATA(bndldx, BNDLDX, X86ISD::BNDLDX, 0),
+  X86_INTRINSIC_DATA(bndstx, BNDSTX, X86ISD::BNDSTX, 0),
+  /////////////////////////////////////////////////////////////////////////////
   X86_INTRINSIC_DATA(rdpmc,     RDPMC,  X86ISD::RDPMC_DAG, 0),
   X86_INTRINSIC_DATA(rdrand_16, RDRAND, X86ISD::RDRAND, 0),
   X86_INTRINSIC_DATA(rdrand_32, RDRAND, X86ISD::RDRAND, 0),
@@ -1742,6 +1752,9 @@ static const IntrinsicData  IntrinsicsWithoutChain[] = {
   X86_INTRINSIC_DATA(avx512_vcvtss2si64, INTR_TYPE_2OP, X86ISD::CVTS2SI_RND, 0),
   X86_INTRINSIC_DATA(avx512_vcvtss2usi32, INTR_TYPE_2OP, X86ISD::CVTS2UI_RND, 0),
   X86_INTRINSIC_DATA(avx512_vcvtss2usi64, INTR_TYPE_2OP, X86ISD::CVTS2UI_RND, 0),
+  //MPX stuff
+  X86_INTRINSIC_DATA(bndmk, BNDMK, X86ISD::BNDMK, 0),
+  /////////////
   X86_INTRINSIC_DATA(fma_vfmadd_pd,        INTR_TYPE_3OP, X86ISD::FMADD, 0),
   X86_INTRINSIC_DATA(fma_vfmadd_pd_256,    INTR_TYPE_3OP, X86ISD::FMADD, 0),
   X86_INTRINSIC_DATA(fma_vfmadd_ps,        INTR_TYPE_3OP, X86ISD::FMADD, 0),

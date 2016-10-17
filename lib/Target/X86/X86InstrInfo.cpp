@@ -4892,6 +4892,7 @@ void X86InstrInfo::copyPhysReg(MachineBasicBlock &MBB,
                                MachineBasicBlock::iterator MI,
                                const DebugLoc &DL, unsigned DestReg,
                                unsigned SrcReg, bool KillSrc) const {
+  errs()<<"in copyPhysReg:"<<SrcReg<<" -> "<<DestReg<<"\n";
   // First deal with the normal symmetric copies.
   bool HasAVX = Subtarget.hasAVX();
   bool HasVLX = Subtarget.hasVLX();
@@ -5060,6 +5061,7 @@ void X86InstrInfo::copyPhysReg(MachineBasicBlock &MBB,
 
   DEBUG(dbgs() << "Cannot copy " << RI.getName(SrcReg)
                << " to " << RI.getName(DestReg) << '\n');
+
   llvm_unreachable("Cannot emit physreg copy instruction");
 }
 
@@ -5118,9 +5120,13 @@ static unsigned getLoadStoreRegOpcode(unsigned Reg,
     assert(X86::RFP80RegClass.hasSubClassEq(RC) && "Unknown 10-byte regclass");
     return load ? X86::LD_Fp80m : X86::ST_FpP80m;
   case 16: {
-    assert(X86::VR128XRegClass.hasSubClassEq(RC) && "Unknown 16-byte regclass");
+    assert((X86::VR128XRegClass.hasSubClassEq(RC)
+                || X86::BNDRRegClass.hasSubClassEq(RC))
+            && "Unknown 16-byte regclass");
     // If stack is realigned we can use aligned stores.
-    if (isStackAligned)
+    if (X86::VR128XRegClass.hasSubClassEq(RC))
+    {
+     if (isStackAligned)
       return load ?
         (HasVLX    ? X86::VMOVAPSZ128rm :
          HasAVX512 ? X86::VMOVAPSZ128rm_NOVLX :
@@ -5130,7 +5136,7 @@ static unsigned getLoadStoreRegOpcode(unsigned Reg,
          HasAVX512 ? X86::VMOVAPSZ128mr_NOVLX :
          HasAVX    ? X86::VMOVAPSmr :
                      X86::MOVAPSmr);
-    else
+     else
       return load ?
         (HasVLX    ? X86::VMOVUPSZ128rm :
          HasAVX512 ? X86::VMOVAPSZ128rm_NOVLX :
@@ -5140,6 +5146,14 @@ static unsigned getLoadStoreRegOpcode(unsigned Reg,
          HasAVX512 ? X86::VMOVUPSZ128mr_NOVLX :
          HasAVX    ? X86::VMOVUPSmr :
                      X86::MOVUPSmr);
+    }
+    if (X86::BNDRRegClass.hasSubClassEq(RC))
+    {
+        errs()<<"Want to do BNDMOV, load?="<<load<<"\n";
+        return load ?
+                X86::BNDMOVRM64rm :
+                X86::BNDMOVMR64mr;
+    }
   }
   case 32:
     assert(X86::VR256XRegClass.hasSubClassEq(RC) && "Unknown 32-byte regclass");

@@ -142,6 +142,7 @@ std::string EVT::getEVTString() const {
   case MVT::Other:   return "ch";
   case MVT::Glue:    return "glue";
   case MVT::x86mmx:  return "x86mmx";
+  case MVT::x86bnd:  return "x86bnd";
   case MVT::v2i1:    return "v2i1";
   case MVT::v4i1:    return "v4i1";
   case MVT::v8i1:    return "v8i1";
@@ -220,6 +221,7 @@ Type *EVT::getTypeForEVT(LLVMContext &Context) const {
   case MVT::f128:    return Type::getFP128Ty(Context);
   case MVT::ppcf128: return Type::getPPC_FP128Ty(Context);
   case MVT::x86mmx:  return Type::getX86_MMXTy(Context);
+  case MVT::x86bnd:  return Type::getX86_BNDTy(Context);
   case MVT::v2i1:    return VectorType::get(Type::getInt1Ty(Context), 2);
   case MVT::v4i1:    return VectorType::get(Type::getInt1Ty(Context), 4);
   case MVT::v8i1:    return VectorType::get(Type::getInt1Ty(Context), 8);
@@ -292,6 +294,7 @@ MVT MVT::getVT(Type *Ty, bool HandleUnknown){
   case Type::DoubleTyID:    return MVT(MVT::f64);
   case Type::X86_FP80TyID:  return MVT(MVT::f80);
   case Type::X86_MMXTyID:   return MVT(MVT::x86mmx);
+  case Type::X86_BNDTyID:   return MVT(MVT::x86bnd);
   case Type::FP128TyID:     return MVT(MVT::f128);
   case Type::PPC_FP128TyID: return MVT(MVT::ppcf128);
   case Type::PointerTyID:   return MVT(MVT::iPTR);
