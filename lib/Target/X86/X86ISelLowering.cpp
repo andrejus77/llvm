@@ -2674,6 +2674,8 @@ SDValue X86TargetLowering::LowerFormalArguments(
         RC = &X86::VK32RegClass;
       else if (RegVT == MVT::v64i1)
         RC = &X86::VK64RegClass;
+      else if(RegVT == MVT::x86bnd)
+        RC = &X86::BNDRRegClass;
       else
         llvm_unreachable("Unknown argument type!");
 

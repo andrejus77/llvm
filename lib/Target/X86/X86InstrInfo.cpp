@@ -4952,6 +4952,8 @@ void X86InstrInfo::copyPhysReg(MachineBasicBlock &MBB,
   // All KMASK RegClasses hold the same k registers, can be tested against anyone.
   else if (X86::VK16RegClass.contains(DestReg, SrcReg))
     Opc = Subtarget.hasBWI() ? X86::KMOVQkk : X86::KMOVWkk;
+  else if (X86::BNDRRegClass.contains(DestReg, SrcReg))
+    Opc = X86::BNDMOVMRrr;
   if (!Opc)
     Opc = CopyToFromAsymmetricReg(DestReg, SrcReg, Subtarget);
 

@@ -259,7 +259,8 @@ public:
     // If it's a primitive, it is always sized.
     if (getTypeID() == IntegerTyID || isFloatingPointTy() ||
         getTypeID() == PointerTyID ||
-        getTypeID() == X86_MMXTyID)
+        getTypeID() == X86_MMXTyID ||
+        getTypeID() == X86_BNDTyID)
       return true;
     // If it is not something that can have a size (e.g. a function or label),
     // it doesn't have a size.

@@ -27,6 +27,7 @@ class RC_X86_RegCall {
   list<Register> XMM = [];
   list<Register> YMM = [];
   list<Register> ZMM = [];
+  list<Register> BND = [];
 }
 
 // RegCall register classes for 32 bits
@@ -39,6 +40,7 @@ def RC_X86_32_RegCall : RC_X86_RegCall {
   let XMM = [XMM0, XMM1, XMM2, XMM3, XMM4, XMM5, XMM6, XMM7];
   let YMM = [YMM0, YMM1, YMM2, YMM3, YMM4, YMM5, YMM6, YMM7];
   let ZMM = [ZMM0, ZMM1, ZMM2, ZMM3, ZMM4, ZMM5, ZMM6, ZMM7];
+  let BND = [BND0, BND1, BND2, BND3];
 }
 
 class RC_X86_64_RegCall : RC_X86_RegCall {
@@ -48,6 +50,7 @@ class RC_X86_64_RegCall : RC_X86_RegCall {
              YMM8, YMM9, YMM10, YMM11, YMM12, YMM13, YMM14, YMM15];
   let ZMM = [ZMM0, ZMM1, ZMM2, ZMM3, ZMM4, ZMM5, ZMM6, ZMM7,
              ZMM8, ZMM9, ZMM10, ZMM11, ZMM12, ZMM13, ZMM14, ZMM15];
+  let BND = [BND0, BND1, BND2, BND3];
 }
 
 def RC_X86_64_RegCall_Win : RC_X86_64_RegCall {
@@ -121,6 +124,10 @@ def CC_#NAME : CallingConv<[
     // MMX type gets 8 byte slot in stack , while alignment depends on target
     CCIfSubtarget<"is64Bit()", CCIfType<[x86mmx], CCAssignToStack<8, 8>>>,
     CCIfType<[x86mmx], CCAssignToStack<8, 4>>,
+
+    //bound parameters
+    CCIfType<[x86bnd], CCAssignToReg<RC.BND>>,
+    CCIfType<[x86bnd], CCAssignToStack<16,16>>,
 
     // float 128 get stack slots whose size and alignment depends 
     // on the subtarget.
@@ -231,7 +238,10 @@ def RetCC_X86Common : CallingConv<[
   CCIfType<[x86mmx], CCAssignToReg<[MM0]>>,
 
   // Long double types are always returned in FP0 (even with SSE).
-  CCIfType<[f80], CCAssignToReg<[FP0, FP1]>>
+  CCIfType<[f80], CCAssignToReg<[FP0, FP1]>>,
+
+  //x86 bound
+  CCIfType<[x86bnd], CCAssignToReg<[BND0, BND1, BND2, BND3]>>
 ]>;
 
 // X86-32 C return-value convention.
@@ -320,6 +330,9 @@ def RetCC_X86_64_C : CallingConv<[
 
   // MMX vector types are always returned in XMM0.
   CCIfType<[x86mmx], CCAssignToReg<[XMM0, XMM1]>>,
+
+  //x86bnd
+  CCIfType<[x86bnd], CCAssignToReg<[BND0, BND1, BND2, BND3]>>,
 
   CCIfSwiftError<CCIfType<[i64], CCAssignToReg<[R12]>>>,
 
@@ -491,6 +504,8 @@ def CC_X86_64_C : CallingConv<[
             CCIfSubtarget<"isTargetDarwin()",
             CCIfSubtarget<"hasSSE2()",
             CCPromoteToType<v2i64>>>>,
+
+  CCIfType<[x86bnd], CCAssignToReg<[BND0, BND1, BND2, BND3]>>,
 
   // Boolean vectors of AVX-512 are passed in SIMD registers.
   // The call from AVX to AVX-512 function should work,

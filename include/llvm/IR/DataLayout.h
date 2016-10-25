@@ -565,6 +565,8 @@ inline uint64_t DataLayout::getTypeSizeInBits(Type *Ty) const {
     VectorType *VTy = cast<VectorType>(Ty);
     return VTy->getNumElements() * getTypeSizeInBits(VTy->getElementType());
   }
+  case Type::X86_BNDTyID:
+    return 128;
   default:
     llvm_unreachable("DataLayout::getTypeSizeInBits(): Unsupported type");
   }
