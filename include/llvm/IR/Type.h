@@ -401,6 +401,7 @@ public:
   static PointerType *getFP128PtrTy(LLVMContext &C, unsigned AS = 0);
   static PointerType *getPPC_FP128PtrTy(LLVMContext &C, unsigned AS = 0);
   static PointerType *getX86_MMXPtrTy(LLVMContext &C, unsigned AS = 0);
+  static PointerType *getX86_BNDPtrTy(LLVMContext &C, unsigned AS = 0);
   static PointerType *getIntNPtrTy(LLVMContext &C, unsigned N, unsigned AS = 0);
   static PointerType *getInt1PtrTy(LLVMContext &C, unsigned AS = 0);
   static PointerType *getInt8PtrTy(LLVMContext &C, unsigned AS = 0);

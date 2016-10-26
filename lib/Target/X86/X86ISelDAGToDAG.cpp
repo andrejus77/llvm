@@ -2891,6 +2891,15 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
     }
     break;
   }
+  case ISD::LOAD: {
+    errs()<<"WTF, this is ISD::LOAD\n";
+    SDValue result = SDValue(Node, 0);
+    if (result.getValueType() == MVT::x86bnd)
+    {
+        errs()<<" and it want to load from memory into bnd register\n";
+    }
+    break;
+  }
   case ISD::STORE: {
     // Change a chain of {load; incr or dec; store} of the same value into
     // a simple increment or decrement through memory of that value, if the

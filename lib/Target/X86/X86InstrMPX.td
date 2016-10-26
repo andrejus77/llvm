@@ -83,4 +83,10 @@ let mayLoad = 1, mayStore = 1, hasSideEffects = 1 in {
                         "bndldx\t{$src, $dst|$dst, $src}", []>, PS,
                         Requires<[HasMPX]>;
 }
+//bndmov patterns
+//only support 64bit platform for now
+//see ./include/llvm/Target/TargetSelectionDAG.td for Pat class definition
+def loadx86bnd  : PatFrag<(ops node:$ptr), (x86bnd (load node:$ptr))>;
+def : Pat<(loadx86bnd addr:$src),
+          (COPY_TO_REGCLASS (BNDMOVRM64rm addr:$src), BNDR)>;
 

@@ -204,6 +204,10 @@ PointerType *Type::getX86_MMXPtrTy(LLVMContext &C, unsigned AS) {
   return getX86_MMXTy(C)->getPointerTo(AS);
 }
 
+PointerType* Type::getX86_BNDPtrTy(LLVMContext &C, unsigned AS) {
+  return getX86_BNDTy(C)->getPointerTo(AS);
+}
+
 PointerType *Type::getIntNPtrTy(LLVMContext &C, unsigned N, unsigned AS) {
   return getIntNTy(C, N)->getPointerTo(AS);
 }
