@@ -18289,6 +18289,8 @@ static SDValue LowerINTRINSIC_WO_CHAIN(SDValue Op, const X86Subtarget &Subtarget
 
       //address is stored in operand 1
       SDValue addr = Op.getOperand(1);
+      //distance(size-1) is stored in operand 2
+      SDValue distance = Op.getOperand(2);
       /*
        * return type
        */
@@ -18298,7 +18300,7 @@ static SDValue LowerINTRINSIC_WO_CHAIN(SDValue Op, const X86Subtarget &Subtarget
        * if use X86ISD::BNDMK, it will be selected and
        * lowered in X86ISelDAGToDAG.cpp
        */
-      SDValue Ops[] = {addr};
+      SDValue Ops[] = {addr, distance};
       SDValue Result = DAG.getNode(X86ISD::BNDMK, dl, BNDVTs, Ops);
       errs()<<"ISelResult for BNDMK:";
       Result.dumpr();

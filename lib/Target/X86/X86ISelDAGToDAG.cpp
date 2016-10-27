@@ -1952,18 +1952,29 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
   {
       errs()<<"WTF this is a bndmk!\n";
 
+      //operand 0 is address
       SDValue N0 = Node->getOperand(0);
+      //operand 1 is distance
+      SDValue N1 = Node->getOperand(1);
 
       //MOpc = (NVT == MVT::i64)?(X86::BNDMK64rm):(X86::BNDMK32rm);
       MOpc = X86::BNDMK64rm;
 
       //FIXME : how to load address?
+      //Base, Scale, Index, Disp, Segment
       SDValue tmp0, tmp1, tmp2, tmp3, tmp4;
       //should use nullptr for Parent here
-      bool loadAddr = selectAddr(nullptr, N0, tmp0, tmp1, tmp2, tmp3, tmp4);
-      assert( loadAddr && "unable to LEA for given memory address (#BNDMK)?" );
-
-      //SDValue bnd_register = CurDAG->getRegister(0, MVT::v2i64);
+      /*
+       * bool loadAddr = selectAddr(nullptr, N0, tmp0, tmp1, tmp2, tmp3, tmp4);
+       * assert( loadAddr && "unable to LEA for given memory address (#BNDMK)?" );
+       */
+     
+      SDLoc DL(Node);
+      tmp0 = N0;
+      tmp1 = CurDAG->getTargetConstant(1 , DL, MVT::i8);
+      tmp2 = N1;
+      tmp3 = CurDAG->getTargetConstant(0, DL, MVT::i32);
+      tmp4 = CurDAG->getRegister(0, MVT::i32);
 
       SDValue Ops[] = {tmp0, tmp1, tmp2, tmp3, tmp4};
 
@@ -1981,17 +1992,36 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
       Node->printrFull(errs());
       errs()<<"\n";
       SDValue chain = Node->getOperand(0);
-      SDValue mib = Node->getOperand(1);
+      SDValue addr = Node->getOperand(1);
       SDValue bnd_reg = Node->getOperand(2);
 
-      //lea of mib
+      //lea of addr?
+      //Base, Scale, Index, Disp, Segment
       SDValue tmp0, tmp1, tmp2, tmp3, tmp4;
-      bool loadAddr = selectAddr(nullptr, mib, tmp0, tmp1, tmp2, tmp3, tmp4);
+#if 0
+      bool loadAddr = selectAddr(nullptr, addr, tmp0, tmp1, tmp2, tmp3, tmp4);
       assert( loadAddr && "unable to LEA for given memory address (#BNDSTX)?" );
-
-      errs()<<"bnd_reg:?";
+      errs()<<"tmp0 base:";
+      tmp0->dump();
+      errs()<<"tmp1 scale:";
+      tmp1->dump();
+      errs()<<"tmp2 index:";
+      tmp2->dump();
+      errs()<<"tmp3 disp:";
+      tmp3->dump();
+      errs()<<"tmp3 segment:";
+      tmp4->dump();
+#else
+      SDLoc DL(Node);
+      tmp0 = addr;
+      tmp1 = CurDAG->getTargetConstant(1 , DL, MVT::i8);
+      tmp2 = CurDAG->getRegister(0, MVT::i64);
+      tmp3 = CurDAG->getTargetConstant(0, DL, MVT::i32);
+      tmp4 = CurDAG->getRegister(0, MVT::i32);
+#endif
+      /*errs()<<"bnd_reg:?";
       bnd_reg->print(errs());
-      errs()<<"\n";
+      errs()<<"\n";*/
 
       SDValue Ops[] = {tmp0, tmp1, tmp2, tmp3, tmp4, bnd_reg, chain};
 
@@ -2009,14 +2039,33 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
       Node->printrFull(errs());
       errs()<<"\n";
       SDValue chain = Node->getOperand(0);
-      SDValue mib = Node->getOperand(1);
+      SDValue addr = Node->getOperand(1);
       errs()<<"Examing chain:";
       chain.dump();
       //lea of mib
       SDValue tmp0, tmp1, tmp2, tmp3, tmp4;
-      bool loadAddr = selectAddr(nullptr, mib, tmp0, tmp1, tmp2, tmp3, tmp4);
+#if 0
+      
+      bool loadAddr = selectAddr(nullptr, addr, tmp0, tmp1, tmp2, tmp3, tmp4);
       assert( loadAddr && "unable to LEA for given memory address (#BNDLDX)?" );
-
+      errs()<<"tmp0 base:";
+      tmp0->dump();
+      errs()<<"tmp1 scale:";
+      tmp1->dump();
+      errs()<<"tmp2 index:";
+      tmp2->dump();
+      errs()<<"tmp3 disp:";
+      tmp3->dump();
+      errs()<<"tmp3 segment:";
+      tmp4->dump();     
+#else
+      SDLoc DL(Node);
+      tmp0 = addr;
+      tmp1 = CurDAG->getTargetConstant(1 , DL, MVT::i8);
+      tmp2 = CurDAG->getRegister(0, MVT::i64);
+      tmp3 = CurDAG->getTargetConstant(0, DL, MVT::i32);
+      tmp4 = CurDAG->getRegister(0, MVT::i32);
+#endif
       SDValue Ops[] = {tmp0, tmp1, tmp2, tmp3, tmp4, chain};
 
       SDVTList VTs = CurDAG->getVTList(MVT::v2i64, MVT::Other);
@@ -2033,26 +2082,11 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
       errs()<<"\n";
       SDValue chain = Node->getOperand(0);
       SDValue bnd_reg = Node->getOperand(1);
-      SDValue mib = Node->getOperand(2);
-      #if 0
-      //lea of mib
-      SDValue tmp0, tmp1, tmp2, tmp3, tmp4;
-      bool loadAddr = selectAddr(nullptr, mib, tmp0, tmp1, tmp2, tmp3, tmp4);
-      assert( loadAddr && "unable to LEA for given memory address (#BNDCL)?" );
-
-      errs()<<"bnd_reg:?";
-      bnd_reg->print(errs());
-      errs()<<"\n";
-
-      SDValue Ops[] = {tmp0, tmp1, tmp2, tmp3, tmp4, bnd_reg, chain};
-
-      SDVTList VTs = CurDAG->getVTList(MVT::Other);
-      MachineSDNode *CNode = CurDAG->getMachineNode(X86::BNDCL64rm, dl, VTs, Ops);
-      #else
-      SDValue Ops[] = {bnd_reg, mib, chain};
+      SDValue addr = Node->getOperand(2);
+      
+      SDValue Ops[] = {bnd_reg, addr, chain};
       SDVTList VTs = CurDAG->getVTList(MVT::Other);
       MachineSDNode *CNode = CurDAG->getMachineNode(X86::BNDCL64rr, dl, VTs, Ops);
-      #endif
      
       ReplaceNode(Node,CNode);
 
@@ -2066,26 +2100,11 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
       errs()<<"\n";
       SDValue chain = Node->getOperand(0);
       SDValue bnd_reg = Node->getOperand(1);
-      SDValue mib = Node->getOperand(2);
-      #if 0
-      //lea of mib
-      SDValue tmp0, tmp1, tmp2, tmp3, tmp4;
-      bool loadAddr = selectAddr(nullptr, mib, tmp0, tmp1, tmp2, tmp3, tmp4);
-      assert( loadAddr && "unable to LEA for given memory address (#BNDCU)?" );
+      SDValue addr = Node->getOperand(2);
 
-      errs()<<"bnd_reg:?";
-      bnd_reg->print(errs());
-      errs()<<"\n";
-
-      SDValue Ops[] = {tmp0, tmp1, tmp2, tmp3, tmp4, bnd_reg, chain};
-
-      SDVTList VTs = CurDAG->getVTList(MVT::Other);
-      MachineSDNode *CNode = CurDAG->getMachineNode(X86::BNDCU64rm, dl, VTs, Ops);
-      #else
-      SDValue Ops[] = {bnd_reg, mib, chain};
+      SDValue Ops[] = {bnd_reg, addr, chain};
       SDVTList VTs = CurDAG->getVTList(MVT::Other);
       MachineSDNode *CNode = CurDAG->getMachineNode(X86::BNDCU64rr, dl, VTs, Ops);
-      #endif
       ReplaceNode(Node,CNode);
 
       return;
@@ -2098,26 +2117,11 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
       errs()<<"\n";
       SDValue chain = Node->getOperand(0);
       SDValue bnd_reg = Node->getOperand(1);
-      SDValue mib = Node->getOperand(2);
-      #if 0
-      //lea of mib
-      SDValue tmp0, tmp1, tmp2, tmp3, tmp4;
-      bool loadAddr = selectAddr(nullptr, mib, tmp0, tmp1, tmp2, tmp3, tmp4);
-      assert( loadAddr && "unable to LEA for given memory address (#BNDCN)?" );
+      SDValue addr = Node->getOperand(2);
 
-      errs()<<"bnd_reg:?";
-      bnd_reg->print(errs());
-      errs()<<"\n";
-
-      SDValue Ops[] = {tmp0, tmp1, tmp2, tmp3, tmp4, bnd_reg, chain};
-
-      SDVTList VTs = CurDAG->getVTList(MVT::Other);
-      MachineSDNode *CNode = CurDAG->getMachineNode(X86::BNDCN64rm, dl, VTs, Ops);
-      #else
-      SDValue Ops[] = {bnd_reg, mib, chain};
+      SDValue Ops[] = {bnd_reg, addr, chain};
       SDVTList VTs = CurDAG->getVTList(MVT::Other);
       MachineSDNode *CNode = CurDAG->getMachineNode(X86::BNDCN64rr, dl, VTs, Ops);
-      #endif
       ReplaceNode(Node,CNode);
 
       return;

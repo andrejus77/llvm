@@ -25,7 +25,7 @@ let TargetPrefix = "x86" in {
   def int_x86_bndldx ://BNDLDXrm
       Intrinsic<[llvm_x86bnd_ty], [llvm_ptr_ty], []>;
   def int_x86_bndmk :
-      Intrinsic<[llvm_x86bnd_ty], [llvm_ptr_ty], [IntrNoMem]>;
+      Intrinsic<[llvm_x86bnd_ty], [llvm_ptr_ty, llvm_i64_ty], [IntrNoMem]>;
   def int_x86_bndstx ://BNDSTXmr
       Intrinsic<[], [llvm_ptr_ty, llvm_x86bnd_ty], []>;
 
