@@ -4892,7 +4892,7 @@ void X86InstrInfo::copyPhysReg(MachineBasicBlock &MBB,
                                MachineBasicBlock::iterator MI,
                                const DebugLoc &DL, unsigned DestReg,
                                unsigned SrcReg, bool KillSrc) const {
-  errs()<<"in copyPhysReg:"<<SrcReg<<" -> "<<DestReg<<"\n";
+  //errs()<<"in copyPhysReg:"<<SrcReg<<" -> "<<DestReg<<"\n";
   // First deal with the normal symmetric copies.
   bool HasAVX = Subtarget.hasAVX();
   bool HasVLX = Subtarget.hasVLX();
@@ -5151,7 +5151,7 @@ static unsigned getLoadStoreRegOpcode(unsigned Reg,
     }
     if (X86::BNDRRegClass.hasSubClassEq(RC))
     {
-        errs()<<"Want to do BNDMOV, load?="<<load<<"\n";
+        //errs()<<"Want to do BNDMOV, load?="<<load<<"\n";
         return load ?
                 X86::BNDMOVRM64rm :
                 X86::BNDMOVMR64mr;

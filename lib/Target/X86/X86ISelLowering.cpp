@@ -17659,8 +17659,8 @@ static SDValue recoverFramePointer(SelectionDAG &DAG, const Function *Fn,
 
 static SDValue LowerINTRINSIC_WO_CHAIN(SDValue Op, const X86Subtarget &Subtarget,
                                        SelectionDAG &DAG) {
-  errs()<<"LowerINTRINSIC_WO_CHAIN : ";
-  Op->dumpr();
+  //errs()<<"LowerINTRINSIC_WO_CHAIN : ";
+  //Op->dumpr();
 
   SDLoc dl(Op);
   unsigned IntNo = cast<ConstantSDNode>(Op.getOperand(0))->getZExtValue();
@@ -18285,7 +18285,7 @@ static SDValue LowerINTRINSIC_WO_CHAIN(SDValue Op, const X86Subtarget &Subtarget
     // MPX intrinsics
     // see include/llvm/CodeGen/ISDOpcodes.h for return value instruction
     case Intrinsic::x86_bndmk: {
-      errs()<<"  - In LowerINTRINSIC_WO_CHAIN: BNDMK\n";
+      //errs()<<"  - In LowerINTRINSIC_WO_CHAIN: BNDMK\n";
 
       //address is stored in operand 1
       SDValue addr = Op.getOperand(1);
@@ -18302,8 +18302,8 @@ static SDValue LowerINTRINSIC_WO_CHAIN(SDValue Op, const X86Subtarget &Subtarget
        */
       SDValue Ops[] = {addr, distance};
       SDValue Result = DAG.getNode(X86ISD::BNDMK, dl, BNDVTs, Ops);
-      errs()<<"ISelResult for BNDMK:";
-      Result.dumpr();
+      //errs()<<"ISelResult for BNDMK:";
+      //Result.dumpr();
       return Result;
     }
 
@@ -18777,8 +18777,8 @@ static SDValue LowerINTRINSIC_W_CHAIN(SDValue Op, const X86Subtarget &Subtarget,
                                       SelectionDAG &DAG) {
   unsigned IntNo = cast<ConstantSDNode>(Op.getOperand(1))->getZExtValue();
 
-  errs()<<"LowerINTRINSIC_W_CHAIN : ";
-  Op->dumpr();
+  //errs()<<"LowerINTRINSIC_W_CHAIN : ";
+  //Op->dumpr();
 
   const IntrinsicData* IntrData = getIntrinsicWithChain(IntNo);
   if (!IntrData) {
@@ -18808,14 +18808,14 @@ static SDValue LowerINTRINSIC_W_CHAIN(SDValue Op, const X86Subtarget &Subtarget,
   //mpx stuff with chain
   // see include/llvm/CodeGen/ISDOpcodes.h for return value instruction
   case BNDSTX: {
-      errs()<<"  - In LowerINTRINSIC_W_CHAIN: BNDSTX\n";
+      //errs()<<"  - In LowerINTRINSIC_W_CHAIN: BNDSTX\n";
 
       SDValue Chain = Op.getOperand(0);
       SDValue mib = Op.getOperand(2);
       SDValue bnd = Op.getOperand(3);
-      errs()<<"BND:?";
-      bnd->print(errs());
-      errs()<<"\n";
+      //errs()<<"BND:?";
+      //bnd->print(errs());
+      //errs()<<"\n";
 
       SDVTList VTs = DAG.getVTList(MVT::Other);
       SDValue Ops[] = {Chain, mib, bnd};
@@ -18823,7 +18823,7 @@ static SDValue LowerINTRINSIC_W_CHAIN(SDValue Op, const X86Subtarget &Subtarget,
       return DAG.getNode(X86ISD::BNDSTX, dl, VTs, Ops);
   }
   case BNDLDX: {
-    errs()<<"  - In LowerINTRINSIC_W_CHAIN: BNDLDX\n";
+    //errs()<<"  - In LowerINTRINSIC_W_CHAIN: BNDLDX\n";
 
     SDValue Chain = Op.getOperand(0);
     SDValue mib = Op.getOperand(2);
@@ -18831,19 +18831,19 @@ static SDValue LowerINTRINSIC_W_CHAIN(SDValue Op, const X86Subtarget &Subtarget,
     SDVTList VTs = DAG.getVTList(MVT::v2i64, MVT::Other);
     SDValue Ops[] = {Chain, mib};
     SDValue Result = DAG.getNode(X86ISD::BNDLDX, dl, VTs, Ops);
-    errs()<<"ISelResult for BNDLDX:";
-    Result.dumpr();
+    //errs()<<"ISelResult for BNDLDX:";
+    //Result.dumpr();
     return Result;
   }
   case BNDCL: {
-      errs()<<"  - In LowerINTRINSIC_W_CHAIN: BNDCL\n";
+      //errs()<<"  - In LowerINTRINSIC_W_CHAIN: BNDCL\n";
 
       SDValue Chain = Op.getOperand(0);
       SDValue bnd = Op.getOperand(2);
       SDValue mib = Op.getOperand(3);
-      errs()<<"BND:?";
-      bnd->print(errs());
-      errs()<<"\n";
+      //errs()<<"BND:?";
+      //bnd->print(errs());
+      //errs()<<"\n";
 
       SDVTList VTs = DAG.getVTList(MVT::Other);
       SDValue Ops[] = {Chain, bnd, mib};
@@ -18851,14 +18851,14 @@ static SDValue LowerINTRINSIC_W_CHAIN(SDValue Op, const X86Subtarget &Subtarget,
       return DAG.getNode(X86ISD::BNDCL, dl, VTs, Ops);
   }
   case BNDCU: {
-      errs()<<"  - In LowerINTRINSIC_W_CHAIN: BNDCU\n";
+      //errs()<<"  - In LowerINTRINSIC_W_CHAIN: BNDCU\n";
 
       SDValue Chain = Op.getOperand(0);
       SDValue bnd = Op.getOperand(2);
       SDValue mib = Op.getOperand(3);
-      errs()<<"BND:?";
-      bnd->print(errs());
-      errs()<<"\n";
+      //errs()<<"BND:?";
+      //bnd->print(errs());
+      //errs()<<"\n";
 
       SDVTList VTs = DAG.getVTList(MVT::Other);
       SDValue Ops[] = {Chain, bnd, mib};
@@ -18866,14 +18866,14 @@ static SDValue LowerINTRINSIC_W_CHAIN(SDValue Op, const X86Subtarget &Subtarget,
       return DAG.getNode(X86ISD::BNDCU, dl, VTs, Ops);
   }
   case BNDCN: {
-      errs()<<"  - In LowerINTRINSIC_W_CHAIN: BNDCN\n";
+      //errs()<<"  - In LowerINTRINSIC_W_CHAIN: BNDCN\n";
 
       SDValue Chain = Op.getOperand(0);
       SDValue bnd = Op.getOperand(2);
       SDValue mib = Op.getOperand(3);
-      errs()<<"BND:?";
-      bnd->print(errs());
-      errs()<<"\n";
+      //errs()<<"BND:?";
+      //bnd->print(errs());
+      //errs()<<"\n";
 
       SDVTList VTs = DAG.getVTList(MVT::Other);
       SDValue Ops[] = {Chain, bnd, mib};
@@ -22148,9 +22148,9 @@ SDValue X86TargetLowering::LowerGC_TRANSITION_END(SDValue Op,
 /// Provide custom lowering hooks for some operations.
 SDValue X86TargetLowering::LowerOperation(SDValue Op, SelectionDAG &DAG) const {
 
-    errs()<<"X86TargetLowering::LowerOperation : ";
-    Op->print(errs());
-    errs()<<"\n";
+    //errs()<<"X86TargetLowering::LowerOperation : ";
+    //Op->print(errs());
+    //errs()<<"\n";
 
   switch (Op.getOpcode()) {
   default: llvm_unreachable("Should not custom lower this!");
@@ -22273,9 +22273,9 @@ SDValue X86TargetLowering::LowerOperation(SDValue Op, SelectionDAG &DAG) const {
 void X86TargetLowering::LowerOperationWrapper(SDNode *N,
                                               SmallVectorImpl<SDValue> &Results,
                                               SelectionDAG &DAG) const {
-  errs()<<"X86TargetLowering::LowerOperationWrapper : ";
-  N->print(errs());
-  errs()<<"\n";
+  //errs()<<"X86TargetLowering::LowerOperationWrapper : ";
+  //N->print(errs());
+  //errs()<<"\n";
   SDValue Res = LowerOperation(SDValue(N, 0), DAG);
 
   if (!Res.getNode())
@@ -24695,8 +24695,8 @@ X86TargetLowering::EmitSjLjDispatchBlock(MachineInstr &MI,
 MachineBasicBlock *
 X86TargetLowering::EmitInstrWithCustomInserter(MachineInstr &MI,
                                                MachineBasicBlock *BB) const {
-  errs()<<"X86TargetLowering::EmitInstrWithCustomInserter:";
-  MI.dump();
+  //errs()<<"X86TargetLowering::EmitInstrWithCustomInserter:";
+  //MI.dump();
   switch (MI.getOpcode()) {
   default: llvm_unreachable("Unexpected instr type to insert");
   case X86::TAILJMPd64:

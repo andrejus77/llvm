@@ -1930,10 +1930,10 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
   unsigned Opcode = Node->getOpcode();
   SDLoc dl(Node);
 
-    errs()<<"-----------------------------\n";
+    /*errs()<<"-----------------------------\n";
     errs()<<"X86DAGToDAGISel::Select : "<<Opcode<<"\n";
     Node->print(errs());
-    errs()<<"\n";
+    errs()<<"\n";*/
 
   DEBUG(dbgs() << "Selecting: "; Node->dump(CurDAG); dbgs() << '\n');
 
@@ -1950,7 +1950,7 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
 #if 1
   case X86ISD::BNDMK:
   {
-      errs()<<"WTF this is a bndmk!\n";
+      //errs()<<"WTF this is a bndmk!\n";
 
       //operand 0 is address
       SDValue N0 = Node->getOperand(0);
@@ -1988,9 +1988,9 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
   case X86ISD::BNDSTX:
   {
       //{chain, mib, bnd_reg}
-      errs()<<"WTF This is a bndstx\n";
-      Node->printrFull(errs());
-      errs()<<"\n";
+      //errs()<<"WTF This is a bndstx\n";
+      //Node->printrFull(errs());
+      //errs()<<"\n";
       SDValue chain = Node->getOperand(0);
       SDValue addr = Node->getOperand(1);
       SDValue bnd_reg = Node->getOperand(2);
@@ -2035,13 +2035,13 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
   case X86ISD::BNDLDX:
   {
       //{chain, mib}
-      errs()<<"WTF This is a bndldx\n";
-      Node->printrFull(errs());
-      errs()<<"\n";
+      //errs()<<"WTF This is a bndldx\n";
+      //Node->printrFull(errs());
+      //errs()<<"\n";
       SDValue chain = Node->getOperand(0);
       SDValue addr = Node->getOperand(1);
-      errs()<<"Examing chain:";
-      chain.dump();
+      //errs()<<"Examing chain:";
+      //chain.dump();
       //lea of mib
       SDValue tmp0, tmp1, tmp2, tmp3, tmp4;
 #if 0
@@ -2077,9 +2077,9 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
   case X86ISD::BNDCL:
   {
       //{chain, bnd_reg, mib}
-      errs()<<"WTF This is a bndcl\n";
-      Node->printrFull(errs());
-      errs()<<"\n";
+      //errs()<<"WTF This is a bndcl\n";
+      //Node->printrFull(errs());
+      //errs()<<"\n";
       SDValue chain = Node->getOperand(0);
       SDValue bnd_reg = Node->getOperand(1);
       SDValue addr = Node->getOperand(2);
@@ -2095,9 +2095,9 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
   case X86ISD::BNDCU:
   {
       //{chain, bnd_reg, mib}
-      errs()<<"WTF This is a bndcu\n";
-      Node->printrFull(errs());
-      errs()<<"\n";
+      //errs()<<"WTF This is a bndcu\n";
+      //Node->printrFull(errs());
+      //errs()<<"\n";
       SDValue chain = Node->getOperand(0);
       SDValue bnd_reg = Node->getOperand(1);
       SDValue addr = Node->getOperand(2);
@@ -2112,9 +2112,9 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
   case X86ISD::BNDCN:
   {
       //{chain, bnd_reg, mib}
-      errs()<<"WTF This is a bndcn\n";
-      Node->printrFull(errs());
-      errs()<<"\n";
+      //errs()<<"WTF This is a bndcn\n";
+      //Node->printrFull(errs());
+      //errs()<<"\n";
       SDValue chain = Node->getOperand(0);
       SDValue bnd_reg = Node->getOperand(1);
       SDValue addr = Node->getOperand(2);
@@ -2892,15 +2892,6 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
                     SDValue(NewNode, 0));
         return;
       }
-    }
-    break;
-  }
-  case ISD::LOAD: {
-    errs()<<"WTF, this is ISD::LOAD\n";
-    SDValue result = SDValue(Node, 0);
-    if (result.getValueType() == MVT::x86bnd)
-    {
-        errs()<<" and it want to load from memory into bnd register\n";
     }
     break;
   }
