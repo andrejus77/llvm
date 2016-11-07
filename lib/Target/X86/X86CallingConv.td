@@ -506,6 +506,7 @@ def CC_X86_64_C : CallingConv<[
             CCPromoteToType<v2i64>>>>,
 
   CCIfType<[x86bnd], CCAssignToReg<[BND0, BND1, BND2, BND3]>>,
+  CCIfType<[x86bnd], CCAssignToStack<16, 16>>,
 
   // Boolean vectors of AVX-512 are passed in SIMD registers.
   // The call from AVX to AVX-512 function should work,
