@@ -504,8 +504,12 @@ def CC_X86_64_C : CallingConv<[
             CCIfSubtarget<"isTargetDarwin()",
             CCIfSubtarget<"hasSSE2()",
             CCPromoteToType<v2i64>>>>,
-
-  CCIfType<[x86bnd], CCAssignToReg<[BND0, BND1, BND2, BND3]>>,
+  /*
+   * bug in regalloc
+   * see https://groups.google.com/forum/#!topic/llvm-dev/ZtbBYGiTuOU
+   * left one bound register for spill usage for call
+   */
+  CCIfType<[x86bnd], CCAssignToReg<[BND0, BND1, BND2]>>,
   CCIfType<[x86bnd], CCAssignToStack<16, 16>>,
 
   // Boolean vectors of AVX-512 are passed in SIMD registers.
