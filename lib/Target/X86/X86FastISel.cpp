@@ -500,6 +500,10 @@ bool X86FastISel::X86FastEmitLoad(EVT VT, X86AddressMode &AM,
       Opc = (Alignment >= 64) ? X86::VMOVDQA64Zrm : X86::VMOVDQU64Zrm;
     RC  = &X86::VR512RegClass;
     break;
+  case MVT::x86bnd:
+    RC = &X86::BNDRRegClass;
+    Opc = X86::BNDMOVRM64rm;
+    break;
   }
 
   ResultReg = createResultReg(RC);
@@ -665,6 +669,9 @@ bool X86FastISel::X86FastEmitStore(EVT VT, unsigned ValReg, bool ValIsKill,
       Opc = IsNonTemporal ? X86::VMOVNTDQZmr : X86::VMOVDQA64Zmr;
     else
       Opc = X86::VMOVDQU64Zmr;
+    break;
+  case MVT::x86bnd:
+    Opc = X86::BNDMOVMR64mr;
     break;
   }
 

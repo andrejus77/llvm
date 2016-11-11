@@ -2522,6 +2522,8 @@ static bool isFrameLoadOpcode(int Opcode) {
   case X86::KMOVWkm:
   case X86::KMOVDkm:
   case X86::KMOVQkm:
+  case X86::BNDMOVRM32rm:
+  case X86::BNDMOVRM64rm:
     return true;
   }
 }
@@ -2599,6 +2601,8 @@ static bool isFrameStoreOpcode(int Opcode) {
   case X86::KMOVWmk:
   case X86::KMOVDmk:
   case X86::KMOVQmk:
+  case X86::BNDMOVMR32mr:
+  case X86::BNDMOVMR64mr:
     return true;
   }
   return false;
@@ -4892,7 +4896,6 @@ void X86InstrInfo::copyPhysReg(MachineBasicBlock &MBB,
                                MachineBasicBlock::iterator MI,
                                const DebugLoc &DL, unsigned DestReg,
                                unsigned SrcReg, bool KillSrc) const {
-  //errs()<<"in copyPhysReg:"<<SrcReg<<" -> "<<DestReg<<"\n";
   // First deal with the normal symmetric copies.
   bool HasAVX = Subtarget.hasAVX();
   bool HasVLX = Subtarget.hasVLX();
@@ -5151,7 +5154,6 @@ static unsigned getLoadStoreRegOpcode(unsigned Reg,
     }
     if (X86::BNDRRegClass.hasSubClassEq(RC))
     {
-        //errs()<<"Want to do BNDMOV, load?="<<load<<"\n";
         return load ?
                 X86::BNDMOVRM64rm :
                 X86::BNDMOVMR64mr;

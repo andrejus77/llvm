@@ -18294,7 +18294,7 @@ static SDValue LowerINTRINSIC_WO_CHAIN(SDValue Op, const X86Subtarget &Subtarget
       /*
        * return type
        */
-      SDVTList BNDVTs = DAG.getVTList(MVT::v2i64);
+      SDVTList BNDVTs = DAG.getVTList(MVT::x86bnd);
 
       /*
        * if use X86ISD::BNDMK, it will be selected and
@@ -22148,10 +22148,9 @@ SDValue X86TargetLowering::LowerGC_TRANSITION_END(SDValue Op,
 /// Provide custom lowering hooks for some operations.
 SDValue X86TargetLowering::LowerOperation(SDValue Op, SelectionDAG &DAG) const {
 
-    //errs()<<"X86TargetLowering::LowerOperation : ";
-    //Op->print(errs());
-    //errs()<<"\n";
-
+  DEBUG( dbgs()<<"X86TargetLowering::LowerOperation : ";
+        Op->print(dbgs());
+        dbgs()<<"\n";);
   switch (Op.getOpcode()) {
   default: llvm_unreachable("Should not custom lower this!");
   case ISD::ATOMIC_FENCE:       return LowerATOMIC_FENCE(Op, Subtarget, DAG);
@@ -22273,9 +22272,9 @@ SDValue X86TargetLowering::LowerOperation(SDValue Op, SelectionDAG &DAG) const {
 void X86TargetLowering::LowerOperationWrapper(SDNode *N,
                                               SmallVectorImpl<SDValue> &Results,
                                               SelectionDAG &DAG) const {
-  //errs()<<"X86TargetLowering::LowerOperationWrapper : ";
-  //N->print(errs());
-  //errs()<<"\n";
+  DEBUG(dbgs()<<"X86TargetLowering::LowerOperationWrapper : ";
+        N->print(dbgs()); dbgs()<<"\n";);
+
   SDValue Res = LowerOperation(SDValue(N, 0), DAG);
 
   if (!Res.getNode())
@@ -24695,8 +24694,8 @@ X86TargetLowering::EmitSjLjDispatchBlock(MachineInstr &MI,
 MachineBasicBlock *
 X86TargetLowering::EmitInstrWithCustomInserter(MachineInstr &MI,
                                                MachineBasicBlock *BB) const {
-  //errs()<<"X86TargetLowering::EmitInstrWithCustomInserter:";
-  //MI.dump();
+  DEBUG(dbgs()<<"X86TargetLowering::EmitInstrWithCustomInserter:";
+    MI.print(dbgs());dbgs()<<"\n");
   switch (MI.getOpcode()) {
   default: llvm_unreachable("Unexpected instr type to insert");
   case X86::TAILJMPd64:

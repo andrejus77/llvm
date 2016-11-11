@@ -614,6 +614,14 @@ def IIC_SSE_POPCNT_RR : InstrItinClass;
 def IIC_SSE_POPCNT_RM : InstrItinClass;
 def IIC_SSE_PCLMULQDQ_RR : InstrItinClass;
 def IIC_SSE_PCLMULQDQ_RM : InstrItinClass;
+def IIC_MPX_BNDMK : InstrItinClass;
+def IIC_MPX_BNDCHK : InstrItinClass;
+def IIC_MPX_BNDMOV_RR : InstrItinClass;
+def IIC_MPX_BNDMOV_MR : InstrItinClass;
+def IIC_MPX_BNDMOV_RM : InstrItinClass;
+def IIC_MPX_BNDSTX : InstrItinClass;
+def IIC_MPX_BNDLDX : InstrItinClass;
+
 
 def IIC_NOP : InstrItinClass;
 

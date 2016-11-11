@@ -1930,11 +1930,6 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
   unsigned Opcode = Node->getOpcode();
   SDLoc dl(Node);
 
-    /*errs()<<"-----------------------------\n";
-    errs()<<"X86DAGToDAGISel::Select : "<<Opcode<<"\n";
-    Node->print(errs());
-    errs()<<"\n";*/
-
   DEBUG(dbgs() << "Selecting: "; Node->dump(CurDAG); dbgs() << '\n');
 
   if (Node->isMachineOpcode()) {
@@ -1950,8 +1945,6 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
 #if 1
   case X86ISD::BNDMK:
   {
-      //errs()<<"WTF this is a bndmk!\n";
-
       //operand 0 is address
       SDValue N0 = Node->getOperand(0);
       //operand 1 is distance
@@ -1960,14 +1953,8 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
       //MOpc = (NVT == MVT::i64)?(X86::BNDMK64rm):(X86::BNDMK32rm);
       MOpc = X86::BNDMK64rm;
 
-      //FIXME : how to load address?
       //Base, Scale, Index, Disp, Segment
       SDValue tmp0, tmp1, tmp2, tmp3, tmp4;
-      //should use nullptr for Parent here
-      /*
-       * bool loadAddr = selectAddr(nullptr, N0, tmp0, tmp1, tmp2, tmp3, tmp4);
-       * assert( loadAddr && "unable to LEA for given memory address (#BNDMK)?" );
-       */
      
       SDLoc DL(Node);
       tmp0 = N0;
@@ -1988,9 +1975,6 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
   case X86ISD::BNDSTX:
   {
       //{chain, mib, bnd_reg}
-      //errs()<<"WTF This is a bndstx\n";
-      //Node->printrFull(errs());
-      //errs()<<"\n";
       SDValue chain = Node->getOperand(0);
       SDValue addr = Node->getOperand(1);
       SDValue bnd_reg = Node->getOperand(2);
@@ -1998,30 +1982,12 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
       //lea of addr?
       //Base, Scale, Index, Disp, Segment
       SDValue tmp0, tmp1, tmp2, tmp3, tmp4;
-#if 0
-      bool loadAddr = selectAddr(nullptr, addr, tmp0, tmp1, tmp2, tmp3, tmp4);
-      assert( loadAddr && "unable to LEA for given memory address (#BNDSTX)?" );
-      errs()<<"tmp0 base:";
-      tmp0->dump();
-      errs()<<"tmp1 scale:";
-      tmp1->dump();
-      errs()<<"tmp2 index:";
-      tmp2->dump();
-      errs()<<"tmp3 disp:";
-      tmp3->dump();
-      errs()<<"tmp3 segment:";
-      tmp4->dump();
-#else
       SDLoc DL(Node);
       tmp0 = addr;
       tmp1 = CurDAG->getTargetConstant(1 , DL, MVT::i8);
       tmp2 = CurDAG->getRegister(0, MVT::i64);
       tmp3 = CurDAG->getTargetConstant(0, DL, MVT::i32);
       tmp4 = CurDAG->getRegister(0, MVT::i32);
-#endif
-      /*errs()<<"bnd_reg:?";
-      bnd_reg->print(errs());
-      errs()<<"\n";*/
 
       SDValue Ops[] = {tmp0, tmp1, tmp2, tmp3, tmp4, bnd_reg, chain};
 
@@ -2035,37 +2001,15 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
   case X86ISD::BNDLDX:
   {
       //{chain, mib}
-      //errs()<<"WTF This is a bndldx\n";
-      //Node->printrFull(errs());
-      //errs()<<"\n";
       SDValue chain = Node->getOperand(0);
       SDValue addr = Node->getOperand(1);
-      //errs()<<"Examing chain:";
-      //chain.dump();
-      //lea of mib
       SDValue tmp0, tmp1, tmp2, tmp3, tmp4;
-#if 0
-      
-      bool loadAddr = selectAddr(nullptr, addr, tmp0, tmp1, tmp2, tmp3, tmp4);
-      assert( loadAddr && "unable to LEA for given memory address (#BNDLDX)?" );
-      errs()<<"tmp0 base:";
-      tmp0->dump();
-      errs()<<"tmp1 scale:";
-      tmp1->dump();
-      errs()<<"tmp2 index:";
-      tmp2->dump();
-      errs()<<"tmp3 disp:";
-      tmp3->dump();
-      errs()<<"tmp3 segment:";
-      tmp4->dump();     
-#else
       SDLoc DL(Node);
       tmp0 = addr;
       tmp1 = CurDAG->getTargetConstant(1 , DL, MVT::i8);
       tmp2 = CurDAG->getRegister(0, MVT::i64);
       tmp3 = CurDAG->getTargetConstant(0, DL, MVT::i32);
       tmp4 = CurDAG->getRegister(0, MVT::i32);
-#endif
       SDValue Ops[] = {tmp0, tmp1, tmp2, tmp3, tmp4, chain};
 
       SDVTList VTs = CurDAG->getVTList(MVT::v2i64, MVT::Other);
@@ -2077,9 +2021,6 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
   case X86ISD::BNDCL:
   {
       //{chain, bnd_reg, mib}
-      //errs()<<"WTF This is a bndcl\n";
-      //Node->printrFull(errs());
-      //errs()<<"\n";
       SDValue chain = Node->getOperand(0);
       SDValue bnd_reg = Node->getOperand(1);
       SDValue addr = Node->getOperand(2);
@@ -2095,9 +2036,6 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
   case X86ISD::BNDCU:
   {
       //{chain, bnd_reg, mib}
-      //errs()<<"WTF This is a bndcu\n";
-      //Node->printrFull(errs());
-      //errs()<<"\n";
       SDValue chain = Node->getOperand(0);
       SDValue bnd_reg = Node->getOperand(1);
       SDValue addr = Node->getOperand(2);
@@ -2112,9 +2050,6 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
   case X86ISD::BNDCN:
   {
       //{chain, bnd_reg, mib}
-      //errs()<<"WTF This is a bndcn\n";
-      //Node->printrFull(errs());
-      //errs()<<"\n";
       SDValue chain = Node->getOperand(0);
       SDValue bnd_reg = Node->getOperand(1);
       SDValue addr = Node->getOperand(2);
@@ -2126,78 +2061,6 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
 
       return;
   }
-
-#if 0
-  //for more info, refer to ISD namespace
-  case ISD::CopyToReg:
-  {
-      /*
-       * CopyToReg - This node has three operands:
-       * a chain, a register number to set to this value, and a value.
-       */
-      /*
-       * use stack if copy from BND register
-       */
-      errs()<<"WTF This is CopyToReg\n";
-      //Node->printrFull(errs());
-      
-      SDValue chain = Node->getOperand(0);
-      SDValue dest = Node->getOperand(1);
-      SDValue source = Node->getOperand(2);
-      errs()<<"Target Opcode:"
-            <<source->getOpcode()<<"\n";
-
-      if ((source->getOpcode()!=X86::BNDMK64rm)
-        &&(source->getOpcode()!=X86::BNDMK32rm)
-        &&(source->getOpcode()!=X86ISD::BNDMK))
-      {
-        break;
-      }
-      errs()<<" and source is BNDMK\n";
-      //first copy bnd to stack
-      SDValue memtmp = CurDAG->CreateStackTemporary(MVT::v2i64);
-      SDValue bnd2mem = CurDAG->getStore(chain, dl, source, memtmp, MachinePointerInfo());
-      SDValue inflag = bnd2mem;
-      
-      //then load to target register using the temp value from stack
-      SDValue tmp0, tmp1, tmp2, tmp3, tmp4;
-      bool loadAddr = selectAddr(nullptr, memtmp, tmp0, tmp1, tmp2, tmp3, tmp4);
-      assert( loadAddr && "can not lea\n");
-      SDValue Ops[] = {dest, tmp0, tmp1, tmp2, tmp3, tmp4, inflag};
-      SDVTList VTs = CurDAG->getVTList(MVT::v2i64, MVT::Other);
-      MachineSDNode *mem2bnd = CurDAG->getMachineNode(X86::BNDMOVRM64rm,dl, VTs, Ops);
-
-      //Chain
-      ReplaceUses(SDValue(Node,0), bnd2mem);
-
-      SDNode* CNode = mem2bnd;
-
-      errs()<<"transformed into :\n";
-      CNode->dumpr();
-
-      ReplaceNode(Node, CNode);
-      SelectCode(bnd2mem.getNode());
-      
-      return;
-  }
-  case ISD::CopyFromReg:
-  {
-      /*
-       * CopyFromReg - This node indicates that the input value is 
-       * a virtual or physical register that is defined outside of 
-       * the scope of this SelectionDAG.
-       */
-      /*
-       * The register is available from the RegisterSDNode object.
-       */
-      errs()<<"WTF This is CopyFromReg\n";
-      SDValue chain = Node->getOperand(0);
-      SDValue src = Node->getOperand(1);
-      SDValue dst = SDValue(Node, 0);
-
-      break;
-  }
-#endif
 #endif
   /////////////////////////////////////////////////////////////////////////////
   case ISD::BRIND: {
@@ -2912,7 +2775,6 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
     // def DEC64m : RI<0xFF, MRM1m, (outs), (ins i64mem:$dst), "dec{q}\t$dst",
     //  [(store (add (loadi64 addr:$dst), -1), addr:$dst),
     //   (transferrable EFLAGS)]>;
-
     StoreSDNode *StoreNode = cast<StoreSDNode>(Node);
     SDValue StoredVal = StoreNode->getOperand(1);
     unsigned Opc = StoredVal->getOpcode();
@@ -2922,7 +2784,6 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
     if (!isLoadIncOrDecStore(StoreNode, Opc, StoredVal, CurDAG,
                              LoadNode, InputChain))
       break;
-
     SDValue Base, Scale, Index, Disp, Segment;
     if (!selectAddr(LoadNode, LoadNode->getBasePtr(),
                     Base, Scale, Index, Disp, Segment))
