@@ -1256,6 +1256,26 @@ static std::string getShuffleComment(const MachineOperand &DstOp,
   return Comment;
 }
 
+static bool UseBNDRegister(const MachineInstr *MI)
+{
+    for (unsigned i=0; i<MI->getNumOperands(); i++)
+    {
+        const MachineOperand& mo = MI->getOperand(i);
+        if(!mo.isReg())
+        {
+            continue;
+        }
+        if((mo.getReg()==X86::BND0) ||
+            (mo.getReg()==X86::BND1) ||
+            (mo.getReg()==X86::BND2) ||
+            (mo.getReg()==X86::BND3))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 void X86AsmPrinter::EmitInstruction(const MachineInstr *MI) {
   X86MCInstLower MCInstLowering(*MF, *this);
   const X86RegisterInfo *RI = MF->getSubtarget<X86Subtarget>().getRegisterInfo();
@@ -1622,6 +1642,23 @@ void X86AsmPrinter::EmitInstruction(const MachineInstr *MI) {
     }
     break;
   }
+  case X86::CALL64r:
+  case X86::CALL64pcrel32: {
+      if (UseBNDRegister(MI))
+      {
+          EmitAndCountInstruction(MCInstBuilder(X86::REPNE_PREFIX));
+      }
+      break;
+  }
+  case X86::RETQ:
+  {
+    if (UseBNDRegister(MI))
+    {
+        EmitAndCountInstruction(MCInstBuilder(X86::REPNE_PREFIX));
+    }
+    break;
+  }
+
 
 #define MOV_CASE(Prefix, Suffix)        \
   case X86::Prefix##MOVAPD##Suffix##rm: \
