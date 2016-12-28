@@ -2012,7 +2012,7 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
       tmp4 = CurDAG->getRegister(0, MVT::i32);
       SDValue Ops[] = {tmp0, tmp1, tmp2, tmp3, tmp4, chain};
 
-      SDVTList VTs = CurDAG->getVTList(MVT::v2i64, MVT::Other);
+      SDVTList VTs = CurDAG->getVTList(MVT::x86bnd, MVT::Other);
       MachineSDNode *CNode = CurDAG->getMachineNode(X86::BNDLDXrm, dl, VTs, Ops);
       
       ReplaceNode(Node,CNode);
