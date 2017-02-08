@@ -1985,7 +1985,8 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
       SDLoc DL(Node);
       tmp0 = addr;
       tmp1 = CurDAG->getTargetConstant(1 , DL, MVT::i8);
-      tmp2 = CurDAG->getRegister(0, MVT::i64);
+      //tmp2 = CurDAG->getRegister(0, MVT::i64);
+      tmp2 = addr;
       tmp3 = CurDAG->getTargetConstant(0, DL, MVT::i32);
       tmp4 = CurDAG->getRegister(0, MVT::i32);
 
@@ -2007,7 +2008,8 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
       SDLoc DL(Node);
       tmp0 = addr;
       tmp1 = CurDAG->getTargetConstant(1 , DL, MVT::i8);
-      tmp2 = CurDAG->getRegister(0, MVT::i64);
+      //tmp2 = CurDAG->getRegister(0, MVT::i64);
+      tmp2 = addr;
       tmp3 = CurDAG->getTargetConstant(0, DL, MVT::i32);
       tmp4 = CurDAG->getRegister(0, MVT::i32);
       SDValue Ops[] = {tmp0, tmp1, tmp2, tmp3, tmp4, chain};
