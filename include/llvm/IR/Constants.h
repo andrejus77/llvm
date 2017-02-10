@@ -35,6 +35,7 @@ class IntegerType;
 class StructType;
 class PointerType;
 class VectorType;
+class X86BNDType;
 class SequentialType;
 
 struct ConstantExprKeyType;

@@ -220,6 +220,7 @@ Constant *Constant::getNullValue(Type *Ty) {
   case Type::StructTyID:
   case Type::ArrayTyID:
   case Type::VectorTyID:
+  case Type::X86_BNDTyID:
     return ConstantAggregateZero::get(Ty);
   case Type::TokenTyID:
     return ConstantTokenNone::get(Ty->getContext());
@@ -765,6 +766,8 @@ unsigned ConstantAggregateZero::getNumElements() const {
     return AT->getNumElements();
   if (auto *VT = dyn_cast<VectorType>(Ty))
     return VT->getNumElements();
+  if (Ty->isX86_BNDTy())
+    return 2;
   return Ty->getStructNumElements();
 }
 
@@ -798,6 +801,8 @@ unsigned UndefValue::getNumElements() const {
     return AT->getNumElements();
   if (auto *VT = dyn_cast<VectorType>(Ty))
     return VT->getNumElements();
+  if (Ty->isX86_BNDTy())
+    return 2;
   return Ty->getStructNumElements();
 }
 
@@ -1257,7 +1262,8 @@ bool ConstantFP::isValueValidForType(Type *Ty, const APFloat& Val) {
 //                      Factory Function Implementation
 
 ConstantAggregateZero *ConstantAggregateZero::get(Type *Ty) {
-  assert((Ty->isStructTy() || Ty->isArrayTy() || Ty->isVectorTy()) &&
+  assert((Ty->isStructTy() || Ty->isArrayTy() ||
+          Ty->isVectorTy() || Ty->isX86_BNDTy()) &&
          "Cannot create an aggregate zero of non-aggregate type!");
 
   std::unique_ptr<ConstantAggregateZero> &Entry =
