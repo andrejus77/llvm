@@ -855,6 +855,10 @@ X86TargetLowering::X86TargetLowering(const X86TargetMachine &TM,
     // Custom lower v2i64 and v2f64 selects.
     setOperationAction(ISD::SELECT,             MVT::v2f64, Custom);
     setOperationAction(ISD::SELECT,             MVT::v2i64, Custom);
+    
+    // custom lower select x86bnd
+    setOperationAction(ISD::SELECT_CC,          MVT::x86bnd, Expand);
+    setOperationAction(ISD::SELECT,             MVT::x86bnd, Custom);
 
     setOperationAction(ISD::FP_TO_SINT,         MVT::v4i32, Legal);
     setOperationAction(ISD::SINT_TO_FP,         MVT::v4i32, Legal);
@@ -16307,6 +16311,25 @@ SDValue X86TargetLowering::LowerSELECT(SDValue Op, SelectionDAG &DAG) const {
       SDValue Cmov = DAG.getNode(X86ISD::CMOV, DL, VTs, T2, T1, CC, Cond);
       return DAG.getNode(ISD::TRUNCATE, DL, Op.getValueType(), Cmov);
     }
+  }
+  //we need to store Op2 and Op1 to stack, emit CMOV and load it back!
+  if (VT==MVT::x86bnd)
+  {
+    SDValue InChain = DAG.getEntryNode();
+
+    SDValue StackPtrOp2 = DAG.CreateStackTemporary(VT, 16);
+    InChain = DAG.getStore(InChain, DL, Op2, StackPtrOp2,
+                    MachinePointerInfo(), /* Alignment = */ 16);
+
+    SDValue StackPtrOp1 = DAG.CreateStackTemporary(VT, 16);
+    InChain = DAG.getStore(InChain, DL, Op1, StackPtrOp1,
+                    MachinePointerInfo(), /* Alignment = */ 16);
+
+    SDVTList VTs = DAG.getVTList(StackPtrOp2->getValueType(0), MVT::Glue);
+    SDValue Ops[] = {StackPtrOp2, StackPtrOp1, CC, Cond};
+    SDValue StackPtrOp_r = DAG.getNode(X86ISD::CMOV, DL, VTs, Ops);
+
+    return DAG.getLoad(VT, DL, InChain, StackPtrOp_r, MachinePointerInfo());
   }
 
   // X86ISD::CMOV means set the result (which is operand 1) to the RHS if
