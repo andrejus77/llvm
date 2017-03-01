@@ -22,12 +22,12 @@ let TargetPrefix = "x86" in {
       Intrinsic<[], [llvm_x86bnd_ty, llvm_ptr_ty], []>;
   def int_x86_bndcu :
       Intrinsic<[], [llvm_x86bnd_ty, llvm_ptr_ty], []>;
-  def int_x86_bndldx ://BNDLDXrm bnd ( LAp, pvalue )
-      Intrinsic<[llvm_x86bnd_ty], [llvm_ptr_ty, llvm_ptr_ty], []>;
+  def int_x86_bndldx ://BNDLDXrm bnd ( LAp, pvalue, displacement)
+      Intrinsic<[llvm_x86bnd_ty], [llvm_ptr_ty, llvm_ptr_ty, llvm_i32_ty], []>;
   def int_x86_bndmk :
       Intrinsic<[llvm_x86bnd_ty], [llvm_ptr_ty, llvm_i64_ty], [IntrNoMem]>;
-  def int_x86_bndstx ://BNDSTXmr (LAp, pvalue, bnd)
-      Intrinsic<[], [llvm_ptr_ty, llvm_ptr_ty, llvm_x86bnd_ty], []>;
+  def int_x86_bndstx ://BNDSTXmr ( LAp, pvalue, displacement, bnd)
+      Intrinsic<[], [llvm_ptr_ty, llvm_ptr_ty, llvm_i32_ty, llvm_x86bnd_ty], []>;
 
 }
 

@@ -1978,7 +1978,8 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
       SDValue chain = Node->getOperand(0);
       SDValue addr = Node->getOperand(1);
       SDValue pv = Node->getOperand(2);
-      SDValue bnd_reg = Node->getOperand(3);
+      SDValue disp = Node->getOperand(3);
+      SDValue bnd_reg = Node->getOperand(4);
 
       //lea of addr?
       //Base, Scale, Index, Disp, Segment
@@ -1988,7 +1989,10 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
       tmp1 = CurDAG->getTargetConstant(1 , DL, MVT::i8);
       //tmp2 = CurDAG->getRegister(0, MVT::i64);
       tmp2 = pv;
-      tmp3 = CurDAG->getTargetConstant(0, DL, MVT::i32);
+      //tmp3 = CurDAG->getTargetConstant(0, DL, MVT::i32);
+      tmp3 = CurDAG->getTargetConstant(
+        dyn_cast<ConstantSDNode>(disp)->getSExtValue(), DL, MVT::i32);
+
       tmp4 = CurDAG->getRegister(0, MVT::i32);
 
       SDValue Ops[] = {tmp0, tmp1, tmp2, tmp3, tmp4, bnd_reg, chain};
@@ -2006,14 +2010,18 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
       SDValue chain = Node->getOperand(0);
       SDValue addr = Node->getOperand(1);
       SDValue pv = Node->getOperand(2);
+      SDValue disp = Node->getOperand(3);
       SDValue tmp0, tmp1, tmp2, tmp3, tmp4;
       SDLoc DL(Node);
       tmp0 = addr;
       tmp1 = CurDAG->getTargetConstant(1 , DL, MVT::i8);
       //tmp2 = CurDAG->getRegister(0, MVT::i64);
       tmp2 = pv;
-      tmp3 = CurDAG->getTargetConstant(0, DL, MVT::i32);
+      //tmp3 = CurDAG->getTargetConstant(0, DL, MVT::i32);
+      tmp3 = CurDAG->getTargetConstant(
+          dyn_cast<ConstantSDNode>(disp)->getSExtValue(), DL, MVT::i32);
       tmp4 = CurDAG->getRegister(0, MVT::i32);
+
       SDValue Ops[] = {tmp0, tmp1, tmp2, tmp3, tmp4, chain};
 
       SDVTList VTs = CurDAG->getVTList(MVT::x86bnd, MVT::Other);

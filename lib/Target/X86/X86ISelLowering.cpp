@@ -18836,13 +18836,14 @@ static SDValue LowerINTRINSIC_W_CHAIN(SDValue Op, const X86Subtarget &Subtarget,
       SDValue Chain = Op.getOperand(0);
       SDValue mib = Op.getOperand(2);
       SDValue pv = Op.getOperand(3);
-      SDValue bnd = Op.getOperand(4);
+      SDValue disp = Op.getOperand(4);
+      SDValue bnd = Op.getOperand(5);
       //errs()<<"BND:?";
       //bnd->print(errs());
       //errs()<<"\n";
 
       SDVTList VTs = DAG.getVTList(MVT::Other);
-      SDValue Ops[] = {Chain, mib, pv, bnd};
+      SDValue Ops[] = {Chain, mib, pv, disp, bnd};
 
       return DAG.getNode(X86ISD::BNDSTX, dl, VTs, Ops);
   }
@@ -18852,9 +18853,10 @@ static SDValue LowerINTRINSIC_W_CHAIN(SDValue Op, const X86Subtarget &Subtarget,
     SDValue Chain = Op.getOperand(0);
     SDValue mib = Op.getOperand(2);
     SDValue pv = Op.getOperand(3);
+    SDValue disp = Op.getOperand(4);
 
     SDVTList VTs = DAG.getVTList(MVT::x86bnd, MVT::Other);
-    SDValue Ops[] = {Chain, mib, pv};
+    SDValue Ops[] = {Chain, mib, pv, disp};
     SDValue Result = DAG.getNode(X86ISD::BNDLDX, dl, VTs, Ops);
     //errs()<<"ISelResult for BNDLDX:";
     //Result.dumpr();
