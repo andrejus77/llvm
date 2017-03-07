@@ -551,9 +551,11 @@ namespace llvm {
       CVTPS2PH, CVTPH2PS,
 
       // MPX
-      BNDCL,
+      BNDCLrr,
+      BNDCLrm,
       BNDCN,
-      BNDCU,
+      BNDCUrr,
+      BNDCUrm,
       BNDLDX,
       BNDMK,
       BNDSTX,

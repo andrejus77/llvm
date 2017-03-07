@@ -2030,7 +2030,7 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
       ReplaceNode(Node,CNode);
       return;
   }
-  case X86ISD::BNDCL:
+  case X86ISD::BNDCLrr:
   {
       //{chain, bnd_reg, mib}
       SDValue chain = Node->getOperand(0);
@@ -2045,20 +2045,82 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
 
       return;
   }
-  case X86ISD::BNDCU:
+  case X86ISD::BNDCUrr:
   {
       //{chain, bnd_reg, mib}
       SDValue chain = Node->getOperand(0);
       SDValue bnd_reg = Node->getOperand(1);
       SDValue addr = Node->getOperand(2);
-
+      
       SDValue Ops[] = {bnd_reg, addr, chain};
       SDVTList VTs = CurDAG->getVTList(MVT::Other);
       MachineSDNode *CNode = CurDAG->getMachineNode(X86::BNDCU64rr, dl, VTs, Ops);
+     
       ReplaceNode(Node,CNode);
 
       return;
   }
+  case X86ISD::BNDCLrm:
+  {
+      //{chain, bnd_reg, base, index, scale}
+      SDValue chain = Node->getOperand(0);
+      SDValue bnd_reg = Node->getOperand(1);
+      SDValue base = Node->getOperand(2);
+      SDValue index = Node->getOperand(3);
+      SDValue scale = Node->getOperand(4);
+      SDValue disp = Node->getOperand(5);
+      SDValue tmp0, tmp1, tmp2, tmp3, tmp4;
+
+      SDLoc DL(Node);
+      tmp0 = base;//base
+      tmp1 = CurDAG->getTargetConstant(
+                    dyn_cast<ConstantSDNode>(scale)
+                    ->getSExtValue(),
+                    DL, MVT::i8);//scale
+      tmp2 = index;//index
+      tmp3 = CurDAG->getTargetConstant(
+                    dyn_cast<ConstantSDNode>(disp)
+                    ->getSExtValue(),
+                    DL, MVT::i32);//displacement
+      tmp4 = CurDAG->getRegister(0, MVT::i32);//segment register
+
+      SDValue Ops[] = {bnd_reg, tmp0, tmp1, tmp2, tmp3, tmp4, chain};
+      SDVTList VTs = CurDAG->getVTList(MVT::Other);
+      MachineSDNode *CNode = CurDAG->getMachineNode(X86::BNDCL64rm, dl, VTs, Ops);
+      ReplaceNode(Node,CNode);
+      return;
+  }
+  case X86ISD::BNDCUrm:
+  {
+      //{chain, bnd_reg, base, index, scale}
+      SDValue chain = Node->getOperand(0);
+      SDValue bnd_reg = Node->getOperand(1);
+      SDValue base = Node->getOperand(2);
+      SDValue index = Node->getOperand(3);
+      SDValue scale = Node->getOperand(4);
+      SDValue disp = Node->getOperand(5);
+      SDValue tmp0, tmp1, tmp2, tmp3, tmp4;
+
+      SDLoc DL(Node);
+      tmp0 = base;//base
+      tmp1 = CurDAG->getTargetConstant(
+                    dyn_cast<ConstantSDNode>(scale)
+                    ->getSExtValue(),
+                    DL, MVT::i8);//scale
+      tmp2 = index;//index
+      tmp3 = CurDAG->getTargetConstant(
+                    dyn_cast<ConstantSDNode>(disp)
+                    ->getSExtValue(),
+                    DL, MVT::i32);//displacement
+      tmp4 = CurDAG->getRegister(0, MVT::i32);//segment register
+
+      SDValue Ops[] = {bnd_reg, tmp0, tmp1, tmp2, tmp3, tmp4, chain};
+      SDVTList VTs = CurDAG->getVTList(MVT::Other);
+      MachineSDNode *CNode = CurDAG->getMachineNode(X86::BNDCU64rm, dl, VTs, Ops);
+      ReplaceNode(Node,CNode);
+      return;
+  }
+
   case X86ISD::BNDCN:
   {
       //{chain, bnd_reg, mib}
@@ -2070,7 +2132,6 @@ void X86DAGToDAGISel::Select(SDNode *Node) {
       SDVTList VTs = CurDAG->getVTList(MVT::Other);
       MachineSDNode *CNode = CurDAG->getMachineNode(X86::BNDCN64rr, dl, VTs, Ops);
       ReplaceNode(Node,CNode);
-
       return;
   }
 #endif

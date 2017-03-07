@@ -16,12 +16,27 @@
 //look at include/llvm/IR/Intrinsics.td for the meaning of Intr*Mem*
 //look at include/llvm/IR/Intrinsics.td for the class definition of Intrinsic
 let TargetPrefix = "x86" in {
-  def int_x86_bndcl :
+  //bndcl ptr, bnd
+  //bound, ptr
+  def int_x86_bndclrr :
       Intrinsic<[], [llvm_x86bnd_ty, llvm_ptr_ty], [Throws]>;
+  //bndcl disp(base, index, scale), bnd
+  //bound, base, index, scale, displacement
+  def int_x86_bndclrm :
+      Intrinsic<[], [llvm_x86bnd_ty, llvm_ptr_ty, llvm_i64_ty, llvm_i8_ty, llvm_i32_ty], [Throws]>;
+
+  //bndcu ptr, bnd
+  //bound, ptr
+  def int_x86_bndcurr :
+      Intrinsic<[], [llvm_x86bnd_ty, llvm_ptr_ty], [Throws]>;
+  //bndcu disp(base, index, scale), bnd
+  //bound, base, index, scale, displacement
+  def int_x86_bndcurm :
+      Intrinsic<[], [llvm_x86bnd_ty, llvm_ptr_ty, llvm_i64_ty, llvm_i8_ty, llvm_i32_ty], [Throws]>;
+
   def int_x86_bndcn :
       Intrinsic<[], [llvm_x86bnd_ty, llvm_ptr_ty], [Throws]>;
-  def int_x86_bndcu :
-      Intrinsic<[], [llvm_x86bnd_ty, llvm_ptr_ty], [Throws]>;
+
   def int_x86_bndldx ://BNDLDXrm bnd ( LAp, pvalue, displacement)
       Intrinsic<[llvm_x86bnd_ty], [llvm_ptr_ty, llvm_ptr_ty, llvm_i32_ty], [IntrReadMem]>;
   def int_x86_bndmk :

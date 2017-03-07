@@ -18799,10 +18799,6 @@ static SDValue MarkEHGuard(SDValue Op, SelectionDAG &DAG) {
 static SDValue LowerINTRINSIC_W_CHAIN(SDValue Op, const X86Subtarget &Subtarget,
                                       SelectionDAG &DAG) {
   unsigned IntNo = cast<ConstantSDNode>(Op.getOperand(1))->getZExtValue();
-
-  //errs()<<"LowerINTRINSIC_W_CHAIN : ";
-  //Op->dumpr();
-
   const IntrinsicData* IntrData = getIntrinsicWithChain(IntNo);
   if (!IntrData) {
     if (IntNo == llvm::Intrinsic::x86_seh_ehregnode)
@@ -18831,76 +18827,74 @@ static SDValue LowerINTRINSIC_W_CHAIN(SDValue Op, const X86Subtarget &Subtarget,
   //mpx stuff with chain
   // see include/llvm/CodeGen/ISDOpcodes.h for return value instruction
   case BNDSTX: {
-      //errs()<<"  - In LowerINTRINSIC_W_CHAIN: BNDSTX\n";
+        SDValue Chain = Op.getOperand(0);
+        SDValue mib = Op.getOperand(2);
+        SDValue pv = Op.getOperand(3);
+        SDValue disp = Op.getOperand(4);
+        SDValue bnd = Op.getOperand(5);
 
-      SDValue Chain = Op.getOperand(0);
-      SDValue mib = Op.getOperand(2);
-      SDValue pv = Op.getOperand(3);
-      SDValue disp = Op.getOperand(4);
-      SDValue bnd = Op.getOperand(5);
-      //errs()<<"BND:?";
-      //bnd->print(errs());
-      //errs()<<"\n";
-
-      SDVTList VTs = DAG.getVTList(MVT::Other);
-      SDValue Ops[] = {Chain, mib, pv, disp, bnd};
-
-      return DAG.getNode(X86ISD::BNDSTX, dl, VTs, Ops);
+        SDVTList VTs = DAG.getVTList(MVT::Other);
+        SDValue Ops[] = {Chain, mib, pv, disp, bnd};
+        return DAG.getNode(X86ISD::BNDSTX, dl, VTs, Ops);
   }
   case BNDLDX: {
-    //errs()<<"  - In LowerINTRINSIC_W_CHAIN: BNDLDX\n";
+        SDValue Chain = Op.getOperand(0);
+        SDValue mib = Op.getOperand(2);
+        SDValue pv = Op.getOperand(3);
+        SDValue disp = Op.getOperand(4);
 
-    SDValue Chain = Op.getOperand(0);
-    SDValue mib = Op.getOperand(2);
-    SDValue pv = Op.getOperand(3);
-    SDValue disp = Op.getOperand(4);
-
-    SDVTList VTs = DAG.getVTList(MVT::x86bnd, MVT::Other);
-    SDValue Ops[] = {Chain, mib, pv, disp};
-    SDValue Result = DAG.getNode(X86ISD::BNDLDX, dl, VTs, Ops);
-    //errs()<<"ISelResult for BNDLDX:";
-    //Result.dumpr();
-    return Result;
+        SDVTList VTs = DAG.getVTList(MVT::x86bnd, MVT::Other);
+        SDValue Ops[] = {Chain, mib, pv, disp};
+        SDValue Result = DAG.getNode(X86ISD::BNDLDX, dl, VTs, Ops);
+        return Result;
   }
-  case BNDCL: {
-      //errs()<<"  - In LowerINTRINSIC_W_CHAIN: BNDCL\n";
-
+  case BNDCLrr: {
       SDValue Chain = Op.getOperand(0);
       SDValue bnd = Op.getOperand(2);
       SDValue mib = Op.getOperand(3);
-      //errs()<<"BND:?";
-      //bnd->print(errs());
-      //errs()<<"\n";
 
       SDVTList VTs = DAG.getVTList(MVT::Other);
       SDValue Ops[] = {Chain, bnd, mib};
-
-      return DAG.getNode(X86ISD::BNDCL, dl, VTs, Ops);
+      return DAG.getNode(X86ISD::BNDCLrr, dl, VTs, Ops);
   }
-  case BNDCU: {
-      //errs()<<"  - In LowerINTRINSIC_W_CHAIN: BNDCU\n";
-
+  case BNDCUrr: {
       SDValue Chain = Op.getOperand(0);
       SDValue bnd = Op.getOperand(2);
       SDValue mib = Op.getOperand(3);
-      //errs()<<"BND:?";
-      //bnd->print(errs());
-      //errs()<<"\n";
 
       SDVTList VTs = DAG.getVTList(MVT::Other);
       SDValue Ops[] = {Chain, bnd, mib};
+      return DAG.getNode(X86ISD::BNDCUrr, dl, VTs, Ops);
+  }
+  case BNDCLrm: {
+      SDValue Chain = Op.getOperand(0);
+      SDValue bnd = Op.getOperand(2);
+      SDValue base = Op.getOperand(3);
+      SDValue index = Op.getOperand(4);
+      SDValue scale = Op.getOperand(5);
+      SDValue disp = Op.getOperand(6);
 
-      return DAG.getNode(X86ISD::BNDCU, dl, VTs, Ops);
+      SDVTList VTs = DAG.getVTList(MVT::Other);
+      SDValue Ops[] = {Chain, bnd, base, index, scale, disp};
+      return DAG.getNode(X86ISD::BNDCUrm, dl, VTs, Ops);
+  }
+  case BNDCUrm: {
+      SDValue Chain = Op.getOperand(0);
+      SDValue bnd = Op.getOperand(2);
+      SDValue base = Op.getOperand(3);
+      SDValue index = Op.getOperand(4);
+      SDValue scale = Op.getOperand(5);
+      SDValue disp = Op.getOperand(6);
+
+      SDVTList VTs = DAG.getVTList(MVT::Other);
+      SDValue Ops[] = {Chain, bnd, base, index, scale, disp};
+
+      return DAG.getNode(X86ISD::BNDCUrm, dl, VTs, Ops);
   }
   case BNDCN: {
-      //errs()<<"  - In LowerINTRINSIC_W_CHAIN: BNDCN\n";
-
       SDValue Chain = Op.getOperand(0);
       SDValue bnd = Op.getOperand(2);
       SDValue mib = Op.getOperand(3);
-      //errs()<<"BND:?";
-      //bnd->print(errs());
-      //errs()<<"\n";
 
       SDVTList VTs = DAG.getVTList(MVT::Other);
       SDValue Ops[] = {Chain, bnd, mib};
@@ -22872,9 +22866,11 @@ const char *X86TargetLowering::getTargetNodeName(unsigned Opcode) const {
   case X86ISD::CVTP2UI_RND:        return "X86ISD::CVTP2UI_RND";
   case X86ISD::CVTS2SI_RND:        return "X86ISD::CVTS2SI_RND";
   case X86ISD::CVTS2UI_RND:        return "X86ISD::CVTS2UI_RND";
-  case X86ISD::BNDCL:              return "X86ISD::BNDCL";
+  case X86ISD::BNDCLrr:              return "X86ISD::BNDCLrr";
+  case X86ISD::BNDCLrm:              return "X86ISD::BNDCLrm";
   case X86ISD::BNDCN:              return "X86ISD::BNDCN";
-  case X86ISD::BNDCU:              return "X86ISD::BNDCU";
+  case X86ISD::BNDCUrr:              return "X86ISD::BNDCUrr";
+  case X86ISD::BNDCUrm:              return "X86ISD::BNDCUrm";
   case X86ISD::BNDLDX:              return "X86ISD::BNDLDX";
   case X86ISD::BNDMK:              return "X86ISD::BNDMK";
   case X86ISD::BNDSTX:              return "X86ISD::BNDSTX";

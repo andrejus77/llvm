@@ -36,7 +36,7 @@ enum IntrinsicType : uint16_t {
   EXPAND_FROM_MEM, INSERT_SUBVEC,
   TERLOG_OP_MASK, TERLOG_OP_MASKZ, BROADCASTM, KUNPCK, FIXUPIMM, FIXUPIMM_MASKZ, FIXUPIMMS,
   FIXUPIMMS_MASKZ, CONVERT_MASK_TO_VEC, CONVERT_TO_MASK,
-  BNDCL, BNDCN, BNDCU, BNDLDX, BNDMK, BNDSTX
+  BNDCLrm, BNDCLrr, BNDCN, BNDCUrm, BNDCUrr, BNDLDX, BNDMK, BNDSTX
 };
 
 struct IntrinsicData {
@@ -220,9 +220,11 @@ static const IntrinsicData IntrinsicsWithChain[] = {
   ////////////////////////////////////////////////////////////////////////////
   //mpx stuff
   //why bndldx is intrinsic with chain???
-  X86_INTRINSIC_DATA(bndcl, BNDCL, X86ISD::BNDCL, 0),
+  X86_INTRINSIC_DATA(bndclrm, BNDCLrm, X86ISD::BNDCLrm, 0),
+  X86_INTRINSIC_DATA(bndclrr, BNDCLrr, X86ISD::BNDCLrr, 0),
   X86_INTRINSIC_DATA(bndcn, BNDCN, X86ISD::BNDCN, 0),
-  X86_INTRINSIC_DATA(bndcu, BNDCU, X86ISD::BNDCU, 0),
+  X86_INTRINSIC_DATA(bndcurm, BNDCUrm, X86ISD::BNDCUrm, 0),
+  X86_INTRINSIC_DATA(bndcurr, BNDCUrr, X86ISD::BNDCUrr, 0),
   X86_INTRINSIC_DATA(bndldx, BNDLDX, X86ISD::BNDLDX, 0),
   X86_INTRINSIC_DATA(bndstx, BNDSTX, X86ISD::BNDSTX, 0),
   /////////////////////////////////////////////////////////////////////////////
