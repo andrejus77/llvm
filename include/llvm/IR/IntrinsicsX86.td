@@ -19,23 +19,23 @@ let TargetPrefix = "x86" in {
   //bndcl ptr, bnd
   //bound, ptr
   def int_x86_bndclrr :
-      Intrinsic<[], [llvm_x86bnd_ty, llvm_ptr_ty], [Throws]>;
+      Intrinsic<[], [llvm_x86bnd_ty, llvm_ptr_ty], []>;
   //bndcl disp(base, index, scale), bnd
   //bound, base, index, scale, displacement
   def int_x86_bndclrm :
-      Intrinsic<[], [llvm_x86bnd_ty, llvm_ptr_ty, llvm_i64_ty, llvm_i8_ty, llvm_i32_ty], [Throws]>;
+      Intrinsic<[], [llvm_x86bnd_ty, llvm_ptr_ty, llvm_i64_ty, llvm_i8_ty, llvm_i32_ty], []>;
 
   //bndcu ptr, bnd
   //bound, ptr
   def int_x86_bndcurr :
-      Intrinsic<[], [llvm_x86bnd_ty, llvm_ptr_ty], [Throws]>;
+      Intrinsic<[], [llvm_x86bnd_ty, llvm_ptr_ty], []>;
   //bndcu disp(base, index, scale), bnd
   //bound, base, index, scale, displacement
   def int_x86_bndcurm :
-      Intrinsic<[], [llvm_x86bnd_ty, llvm_ptr_ty, llvm_i64_ty, llvm_i8_ty, llvm_i32_ty], [Throws]>;
+      Intrinsic<[], [llvm_x86bnd_ty, llvm_ptr_ty, llvm_i64_ty, llvm_i8_ty, llvm_i32_ty], []>;
 
   def int_x86_bndcn :
-      Intrinsic<[], [llvm_x86bnd_ty, llvm_ptr_ty], [Throws]>;
+      Intrinsic<[], [llvm_x86bnd_ty, llvm_ptr_ty], []>;
 
   def int_x86_bndldx ://BNDLDXrm bnd ( LAp, pvalue, displacement)
       Intrinsic<[llvm_x86bnd_ty], [llvm_ptr_ty, llvm_ptr_ty, llvm_i32_ty], [IntrReadMem]>;
