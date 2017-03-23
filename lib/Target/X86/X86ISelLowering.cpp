@@ -18876,7 +18876,7 @@ static SDValue LowerINTRINSIC_W_CHAIN(SDValue Op, const X86Subtarget &Subtarget,
 
       SDVTList VTs = DAG.getVTList(MVT::Other);
       SDValue Ops[] = {Chain, bnd, base, index, scale, disp};
-      return DAG.getNode(X86ISD::BNDCUrm, dl, VTs, Ops);
+      return DAG.getNode(X86ISD::BNDCLrm, dl, VTs, Ops);
   }
   case BNDCUrm: {
       SDValue Chain = Op.getOperand(0);
